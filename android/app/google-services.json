@@ -2,7 +2,8 @@
   "project_info": {
     "project_number": "307112280698",
     "project_id": "chat-21b30",
-    "storage_bucket": "chat-21b30.firebasestorage.app"
+    "storage_bucket": "chat-21b30.firebasestorage.app",
+    "firebase_url": "https://chat-21b30-default-rtdb.asia-southeast1.firebasedatabase.app"
   },
   "client": [
     {

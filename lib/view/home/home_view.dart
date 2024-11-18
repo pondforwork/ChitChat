@@ -1,4 +1,5 @@
 import 'package:chit_chat/controller/user/user_controller.dart';
+import 'package:chit_chat/view/friends/add_friends_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,6 +34,14 @@ class _HomeViewState extends State<HomeView> {
           );
         })),
         centerTitle: true,
+        actions: [
+          IconButton(
+              onPressed: (() {
+                print("Add Friend");
+                Get.to(AddFriendsView());
+              }),
+              icon: const Icon(Icons.person_add))
+        ],
       ),
     );
   }

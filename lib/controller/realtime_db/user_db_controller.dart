@@ -75,4 +75,25 @@ class RealtimeDbController {
       return false;
     }
   }
+
+  Future<bool> findFriendsById(String userId) async {
+    try {
+      Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
+      DatabaseEvent event = await userQuery.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        // The user exists
+        Map userData = snapshot.value as Map;
+        print('User found: $userData');
+        return true;
+      } else {
+        print('No user found with ID: $userId');
+        return false;
+      }
+    } catch (error) {
+      print('Error finding user: $error');
+      return false;
+    }
+  }
 }

@@ -1,6 +1,9 @@
+import 'package:chit_chat/controller/user_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginView extends StatelessWidget {
+  UserController userController = Get.put(UserController());
   LoginView({super.key});
 
   @override
@@ -16,6 +19,7 @@ class LoginView extends StatelessWidget {
               child: InkWell(
                 onTap: () {
                   print("Login Clicked");
+                  userController.signInWithGoogle();
                 },
                 borderRadius: BorderRadius.circular(15),
                 splashColor: Colors.green, // Customize splash color

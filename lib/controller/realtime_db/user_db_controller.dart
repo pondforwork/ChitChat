@@ -19,6 +19,7 @@ class RealtimeDbController extends GetxController {
     _userRef.push().set({
       '_id': firebaseUser!.uid,
       'username': firebaseUser.displayName,
+      'photoUrl': '',
       'friends': [],
       'chats': [],
       'userId': ''

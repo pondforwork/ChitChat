@@ -19,7 +19,7 @@ class UserController extends GetxController {
     super.onInit();
   }
 
-  void saveUser(String? userId, String? username) {
+  void saveLocalUser(String? userId, String? username) {
     _userBox.put("userId", userId);
     _userBox.put("username", username);
     print("User data saved!");
@@ -47,13 +47,11 @@ class UserController extends GetxController {
 
   Future<User?> signInWithGoogle() async {
     try {
-      // Initialize Google Sign-In
       final GoogleSignIn googleSignIn = GoogleSignIn();
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
-        return null; // User canceled the sign-in
+        return null;
       }
-
       // Obtain Google Sign-In Authentication
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
@@ -71,18 +69,18 @@ class UserController extends GetxController {
       // Get the signed-in user
       final User? firebaseUser = userCredential.user;
 
-      //Check User exist in db
-
+      // ถ้าได้ firebase user
       if (firebaseUser != null) {
         String uid = firebaseUser.uid;
-        realtimeDbController.checkUserExistInDb(uid);
+        if (await realtimeDbController.checkUserExists(uid)) {
+          Get.to(HomeView());
+        } else {
+          realtimeDbController.saveNewUserToFirebase(firebaseUser);
+          saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
+          Get.to(HomeView());
+        }
       }
 
-      // realtimeDbController.saveNewUserToFirebase(firebaseUser);
-
-      // ถ้าสำเร็จ ให้บันทึก User
-      saveUser(firebaseUser?.uid, firebaseUser?.displayName);
-      Get.to(HomeView());
       return firebaseUser;
     } catch (error) {
       print("Error signing in with Google: $error");

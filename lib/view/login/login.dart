@@ -51,7 +51,7 @@ class LoginView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(onPressed: (() {
         // realtimeDbController.getAllUsers();
-        realtimeDbController.getUserById('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
+        realtimeDbController.checkUserExists('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
       })),
     );
   }

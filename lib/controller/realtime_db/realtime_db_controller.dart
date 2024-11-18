@@ -55,12 +55,9 @@ class RealtimeDbController {
     }
   }
 
-  Future<void> getUserById(String userId) async {
+  Future<bool> checkUserExists(String userId) async {
     try {
-      // Query users by '_id' field
       Query userQuery = _userRef.orderByChild('_id').equalTo(userId);
-
-      // Fetch data once from the query
       DatabaseEvent event = await userQuery.once();
       DataSnapshot snapshot = event.snapshot;
 
@@ -68,11 +65,14 @@ class RealtimeDbController {
         // The user exists
         Map userData = snapshot.value as Map;
         print('User found: $userData');
+        return true;
       } else {
         print('No user found with ID: $userId');
+        return false;
       }
     } catch (error) {
       print('Error finding user: $error');
+      return false;
     }
   }
 }

@@ -109,32 +109,34 @@ class RealtimeDbController extends GetxController {
     }
   }
 
-  // void addFriend(String userId, String friendId) async {
+  // void addFriend(String userId, String friendUid) async {
   //   try {
+  //     // Search for the user by userId
   //     Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
   //     DatabaseEvent event = await userQuery.once();
   //     DataSnapshot snapshot = event.snapshot;
 
   //     if (snapshot.exists) {
-  //       // Extract the first user's key
+  //       // Extract the first user's key (Firebase auto-generated key)
   //       String userKey = (snapshot.value as Map).keys.first;
 
-  //       // Get current friends list
+  //       // Retrieve the current friends list or initialize it if absent
   //       List<dynamic> friends =
   //           (snapshot.value as Map)[userKey]['friends'] ?? [];
 
-  //       // Add the new friend's ID if not already in the list
-  //       if (!friends.contains(friendId)) {
-  //         friends.add(friendId);
+  //       // Add the friend's uid (friendUid) if not already in the list
+  //       if (!friends.contains(friendUid)) {
+  //         friends.add(friendUid);
 
   //         // Update the friends list in Firebase
   //         await _userRef.child(userKey).update({'friends': friends});
-  //         print('Friend added successfully');
+  //         print(
+  //             'Friend (UID: $friendUid) added successfully to $userId\'s list.');
   //       } else {
-  //         print('Friend already exists in the list');
+  //         print('Friend (UID: $friendUid) is already in the list.');
   //       }
   //     } else {
-  //       print('User not found with userId: $userId');
+  //       print('User with userId "$userId" not found.');
   //     }
   //   } catch (error) {
   //     print('Error adding friend: $error');
@@ -153,8 +155,8 @@ class RealtimeDbController extends GetxController {
         String userKey = (snapshot.value as Map).keys.first;
 
         // Retrieve the current friends list or initialize it if absent
-        List<dynamic> friends =
-            (snapshot.value as Map)[userKey]['friends'] ?? [];
+        List<dynamic> friends = List<dynamic>.from(
+            (snapshot.value as Map)[userKey]['friends'] ?? []);
 
         // Add the friend's uid (friendUid) if not already in the list
         if (!friends.contains(friendUid)) {

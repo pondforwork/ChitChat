@@ -1,3 +1,4 @@
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:chit_chat/view/friends/add_friends_view.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   UserController userController = Get.put(UserController());
+  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
   @override
   void initState() {
     // TODO: implement initState
@@ -43,6 +45,9 @@ class _HomeViewState extends State<HomeView> {
               icon: const Icon(Icons.person_add))
         ],
       ),
+      floatingActionButton: FloatingActionButton(onPressed: (() {
+        realtimeDbController.getFriendsList(userController.userId.value);
+      })),
     );
   }
 }

@@ -50,7 +50,7 @@ class _AddFriendsViewState extends State<AddFriendsView> {
       body: Column(
         children: [
           const SizedBox(
-            height: 150,
+            height: 120,
           ),
           Center(
             child: Form(
@@ -83,16 +83,26 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                     ),
                   ),
                   const SizedBox(
-                    height: 100,
+                    height: 30,
                   ),
                   Obx(() {
                     return !userDbController.isInitial.value
                         ? userDbController.userFound.value
                             ? Container(
-                                height: 200,
                                 // color: Colors.black38,
                                 child: Column(
                                   children: [
+                                    Container(
+                                        child: CircleAvatar(
+                                      radius:
+                                          75, // Half of the 150 size to make it a circle
+                                      backgroundImage: NetworkImage(
+                                        userDbController
+                                                .photoUrl.value.isNotEmpty
+                                            ? userDbController.photoUrl.value
+                                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSe_cHoMuGA2eCU5W8DnuQQfwzzvcMyBX0rOQ&s', // Fallback image
+                                      ),
+                                    )),
                                     Text(
                                       userDbController.userName.value,
                                       style: GoogleFonts.kanit(
@@ -106,7 +116,6 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        print("Login Clicked");
                                         userDbController.addFriend("Test",
                                             userDbController.friendUid.value);
                                       },

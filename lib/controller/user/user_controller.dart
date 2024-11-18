@@ -28,11 +28,15 @@ class UserController extends GetxController {
   Future<LocalUser> getUser() async {
     String? userIdString = await _userBox.get("userId");
     String? usernameString = await _userBox.get("username");
-
     // If userId is retrieved, update the RxString values.
     if (userIdString != null && usernameString != null) {
+      print("UserId not null");
+      print(userId.value);
+      print(userIdString);
       userId.value = userIdString;
       userName.value = usernameString;
+    } else {
+      print("User is Empty");
     }
     // Return the LocalUser object after updating values
     LocalUser user = LocalUser(userId: userId.value, username: usernameString);
@@ -75,10 +79,10 @@ class UserController extends GetxController {
         if (await realtimeDbController.checkUserExists(uid)) {
           Get.to(HomeView());
         } else {
-          realtimeDbController.saveNewUserToFirebase(firebaseUser);
           saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
           Get.to(HomeView());
         }
+        saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
       }
 
       return firebaseUser;

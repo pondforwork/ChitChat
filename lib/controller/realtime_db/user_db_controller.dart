@@ -14,6 +14,7 @@ class RealtimeDbController extends GetxController {
   RxString userName = ''.obs;
   RxString friendUserId = ''.obs;
   RxString friendUid = ''.obs;
+  RxString photoUrl = ''.obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     _userRef.push().set({
@@ -102,6 +103,7 @@ class RealtimeDbController extends GetxController {
         this.friendUserId.value = user.userId;
         friendUid.value = user.id;
         userFound.value = true;
+        photoUrl.value = user.photoUrl!;
       } else {
         print("No user found with userId: $userId");
       }
@@ -109,40 +111,6 @@ class RealtimeDbController extends GetxController {
       print("Error finding user by ID: $e");
     }
   }
-
-  // void addFriend(String userId, String friendUid) async {
-  //   try {
-  //     // Search for the user by userId
-  //     Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
-  //     DatabaseEvent event = await userQuery.once();
-  //     DataSnapshot snapshot = event.snapshot;
-
-  //     if (snapshot.exists) {
-  //       // Extract the first user's key (Firebase auto-generated key)
-  //       String userKey = (snapshot.value as Map).keys.first;
-
-  //       // Retrieve the current friends list or initialize it if absent
-  //       List<dynamic> friends =
-  //           (snapshot.value as Map)[userKey]['friends'] ?? [];
-
-  //       // Add the friend's uid (friendUid) if not already in the list
-  //       if (!friends.contains(friendUid)) {
-  //         friends.add(friendUid);
-
-  //         // Update the friends list in Firebase
-  //         await _userRef.child(userKey).update({'friends': friends});
-  //         print(
-  //             'Friend (UID: $friendUid) added successfully to $userId\'s list.');
-  //       } else {
-  //         print('Friend (UID: $friendUid) is already in the list.');
-  //       }
-  //     } else {
-  //       print('User with userId "$userId" not found.');
-  //     }
-  //   } catch (error) {
-  //     print('Error adding friend: $error');
-  //   }
-  // }
 
   void addFriend(String userId, String friendUid) async {
     try {
@@ -175,6 +143,27 @@ class RealtimeDbController extends GetxController {
       }
     } catch (error) {
       print('Error adding friend: $error');
+    }
+  }
+
+  void getFriendsList(String myUserId) async {
+    try {
+      Query userQuery = _userRef.orderByChild('_id').equalTo(myUserId);
+      DatabaseEvent event = await userQuery.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        String userKey = (snapshot.value as Map).keys.first;
+        List<dynamic> friends =
+            (snapshot.value as Map)[userKey]['friends'] ?? [];
+        print("Friends List: $friends");
+        List<String> friendIds = List<String>.from(friends);
+        print("Friend IDs: $friendIds");
+      } else {
+        print("User with _id: $myUserId not found.");
+      }
+    } catch (error) {
+      print("Error retrieving friends list: $error");
     }
   }
 }

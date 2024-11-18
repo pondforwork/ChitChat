@@ -11,6 +11,14 @@ class AddFriendsView extends StatefulWidget {
 }
 
 class _AddFriendsViewState extends State<AddFriendsView> {
+  @override
+  void dispose() {
+    userDbController.userFound.value = false;
+    userDbController.isInitial.value = true;
+    _friendIdController.clear();
+    super.dispose();
+  }
+
   final TextEditingController _friendIdController = TextEditingController();
   RealtimeDbController userDbController = Get.put(RealtimeDbController());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -44,19 +52,18 @@ class _AddFriendsViewState extends State<AddFriendsView> {
           ),
           Center(
             child: Form(
-              key: _formKey, // Assign the form key to the Form widget
+              key: _formKey,
               child: Column(
                 children: [
                   Container(
                     decoration: BoxDecoration(color: Colors.white),
                     width: 270,
                     child: TextFormField(
-                      controller: _friendIdController, // Connect the controller
+                      controller: _friendIdController,
                       decoration: InputDecoration(
                         hintText: 'ใส่ไอดีของเพื่อนที่นี่',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              15.0), // Set the border radius
+                          borderRadius: BorderRadius.circular(15.0),
                         ),
                         suffixIcon: IconButton(
                           icon: Icon(Icons.search),
@@ -65,12 +72,11 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                           },
                         ),
                       ),
-                      // Add a validator to ensure the field is not empty
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'กรุณากรอกไอดีของเพื่อน'; // Error message when field is empty
+                          return 'กรุณากรอกไอดีของเพื่อน';
                         }
-                        return null; // If the field is not empty, return null
+                        return null;
                       },
                     ),
                   ),
@@ -78,45 +84,58 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                     height: 100,
                   ),
                   Obx(() {
-                    return userDbController.userFound.value
-                        ? Container(
-                            width: 100,
-                            height: 200,
-                            color: Colors.black38,
-                            child: Column(
-                              children: [Text(userDbController.userName.value)],
-                            ),
-                          )
-                        : Text("Not Found");
+                    return !userDbController.isInitial.value
+                        ? userDbController.userFound.value
+                            ? Container(
+                                height: 200,
+                                // color: Colors.black38,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      userDbController.userName.value,
+                                      style: GoogleFonts.kanit(
+                                        fontSize: 20,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        print("Login Clicked");
+                                      },
+                                      borderRadius: BorderRadius.circular(15),
+                                      splashColor: Color(0xFFFFDDAE),
+                                      child: Ink(
+                                        width: 160,
+                                        height: 35,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          color: Color(0xFFFFDDAE),
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text("เพิ่มเพื่อน",
+                                                style: GoogleFonts.kanit(
+                                                  fontSize: 15,
+                                                  color: Colors.black,
+                                                  fontWeight: FontWeight.normal,
+                                                )),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Text("ไม่พบผู้ใช้ที่ต้องการ")
+                        : Container();
                   })
-                  // InkWell(
-                  //   onTap: _validateAndSubmit, // Trigger validation on tap
-                  //   borderRadius: BorderRadius.circular(15),
-                  //   splashColor: Colors.green,
-                  //   child: Ink(
-                  //     width: 150,
-                  //     height: 50,
-                  //     decoration: BoxDecoration(
-                  //       borderRadius: BorderRadius.circular(15),
-                  //       color: Color(0xFFFFDDAE),
-                  //     ),
-                  //     child: Row(
-                  //       mainAxisAlignment: MainAxisAlignment.center,
-                  //       children: [
-                  //         const Icon(Icons.search),
-                  //         const SizedBox(
-                  //           width: 15,
-                  //         ),
-                  //         Text("ค้นหา",
-                  //             style: GoogleFonts.kanit(
-                  //               fontSize: 20,
-                  //               color: Colors.black,
-                  //               fontWeight: FontWeight.bold,
-                  //             )),
-                  //       ],
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),

@@ -7,7 +7,7 @@ import '../../model/user.dart';
 class RealtimeDbController extends GetxController {
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
-
+  RxBool isInitial = true.obs;
   RxBool userFound = false.obs;
   RxString userName = ''.obs;
 
@@ -78,8 +78,8 @@ class RealtimeDbController extends GetxController {
 
   Future<void> findFriendsById(String userId) async {
     try {
+      isInitial.value = false;
       userFound.value = false;
-
       Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
       DatabaseEvent event = await userQuery.once();
       DataSnapshot snapshot = event.snapshot;

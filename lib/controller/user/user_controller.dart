@@ -1,4 +1,4 @@
-import 'package:chit_chat/controller/realtime_db/realtime_db_controller.dart';
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/model/user.dart';
 import 'package:chit_chat/view/home/home_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';

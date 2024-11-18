@@ -1,11 +1,14 @@
-import 'package:chit_chat/controller/realtime_db/realtime_db_controller.dart';
+import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class LoginView extends StatelessWidget {
   UserController userController = Get.put(UserController());
   RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
+  ChatDbController chatDbController = ChatDbController();
   LoginView({super.key});
 
   @override
@@ -24,7 +27,7 @@ class LoginView extends StatelessWidget {
                   userController.signInWithGoogle();
                 },
                 borderRadius: BorderRadius.circular(15),
-                splashColor: Colors.green, // Customize splash color
+                splashColor: Colors.green,
                 child: Ink(
                   width: 300,
                   height: 70,
@@ -32,12 +35,16 @@ class LoginView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(15),
                     color: Color(0xFFFFDDAE),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      Icon(Icons.login),
+                      SizedBox(
+                        width: 15,
+                      ),
                       Text("เข้าสู่ระบบด้วย Google",
-                          style: TextStyle(
-                            fontSize: 16,
+                          style: GoogleFonts.kanit(
+                            fontSize: 20,
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
                           )),
@@ -51,7 +58,8 @@ class LoginView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(onPressed: (() {
         // realtimeDbController.getAllUsers();
-        realtimeDbController.checkUserExists('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
+        // realtimeDbController.checkUserExists('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
+        chatDbController.saveMockMessage();
       })),
     );
   }

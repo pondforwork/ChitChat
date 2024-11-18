@@ -1,4 +1,5 @@
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
+import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +22,7 @@ class _AddFriendsViewState extends State<AddFriendsView> {
 
   final TextEditingController _friendIdController = TextEditingController();
   RealtimeDbController userDbController = Get.put(RealtimeDbController());
+  UserController userController = Get.put(UserController());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _validateAndSubmit() {
@@ -105,6 +107,8 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                                     InkWell(
                                       onTap: () {
                                         print("Login Clicked");
+                                        userDbController.addFriend("Test",
+                                            userDbController.friendUid.value);
                                       },
                                       borderRadius: BorderRadius.circular(15),
                                       splashColor: Color(0xFFFFDDAE),

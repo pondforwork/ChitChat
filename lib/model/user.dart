@@ -4,6 +4,7 @@ class UserInstance {
   List<String> friends;
   List<String> chats;
   String userId;
+  String? photoUrl;
 
   UserInstance({
     required this.id,
@@ -11,17 +12,8 @@ class UserInstance {
     required this.friends,
     required this.chats,
     required this.userId,
+    this.photoUrl,
   });
-
-  // factory UserInstance.fromMap(Map<String, dynamic> map) {
-  //   return UserInstance(
-  //     id: map['_id'] ?? '',
-  //     username: map['username'] ?? '',
-  //     friends: List<String>.from(map['friends'] ?? []),
-  //     chats: List<String>.from(map['chats'] ?? []),
-  //     userId: map['userId'] ?? '',
-  //   );
-  // }
 
   factory UserInstance.fromMap(Map<String, dynamic> map) {
     return UserInstance(
@@ -34,9 +26,11 @@ class UserInstance {
           ? List<String>.from(map['chats'] as List<dynamic>)
           : [],
       userId: map['userId'] ?? '',
+      photoUrl: map['photoUrl'], // Handle null case automatically
     );
   }
 
+  // Updated toMap method
   Map<String, dynamic> toMap() {
     return {
       '_id': id,
@@ -44,6 +38,7 @@ class UserInstance {
       'friends': friends,
       'chats': chats,
       'userId': userId,
+      'photoUrl': photoUrl,
     };
   }
 }

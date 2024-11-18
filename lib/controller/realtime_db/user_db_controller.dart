@@ -1,3 +1,4 @@
+import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
@@ -7,9 +8,12 @@ import '../../model/user.dart';
 class RealtimeDbController extends GetxController {
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
+
   RxBool isInitial = true.obs;
   RxBool userFound = false.obs;
   RxString userName = ''.obs;
+  RxString friendUserId = ''.obs;
+  RxString friendUid = ''.obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     _userRef.push().set({
@@ -94,12 +98,80 @@ class RealtimeDbController extends GetxController {
         UserInstance user = UserInstance.fromMap(userMap);
         print("Username: ${user.username}");
         userName.value = user.username;
+        this.friendUserId.value = user.userId;
+        friendUid.value = user.id;
         userFound.value = true;
       } else {
         print("No user found with userId: $userId");
       }
     } catch (e) {
       print("Error finding user by ID: $e");
+    }
+  }
+
+  // void addFriend(String userId, String friendId) async {
+  //   try {
+  //     Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
+  //     DatabaseEvent event = await userQuery.once();
+  //     DataSnapshot snapshot = event.snapshot;
+
+  //     if (snapshot.exists) {
+  //       // Extract the first user's key
+  //       String userKey = (snapshot.value as Map).keys.first;
+
+  //       // Get current friends list
+  //       List<dynamic> friends =
+  //           (snapshot.value as Map)[userKey]['friends'] ?? [];
+
+  //       // Add the new friend's ID if not already in the list
+  //       if (!friends.contains(friendId)) {
+  //         friends.add(friendId);
+
+  //         // Update the friends list in Firebase
+  //         await _userRef.child(userKey).update({'friends': friends});
+  //         print('Friend added successfully');
+  //       } else {
+  //         print('Friend already exists in the list');
+  //       }
+  //     } else {
+  //       print('User not found with userId: $userId');
+  //     }
+  //   } catch (error) {
+  //     print('Error adding friend: $error');
+  //   }
+  // }
+
+  void addFriend(String userId, String friendUid) async {
+    try {
+      // Search for the user by userId
+      Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
+      DatabaseEvent event = await userQuery.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        // Extract the first user's key (Firebase auto-generated key)
+        String userKey = (snapshot.value as Map).keys.first;
+
+        // Retrieve the current friends list or initialize it if absent
+        List<dynamic> friends =
+            (snapshot.value as Map)[userKey]['friends'] ?? [];
+
+        // Add the friend's uid (friendUid) if not already in the list
+        if (!friends.contains(friendUid)) {
+          friends.add(friendUid);
+
+          // Update the friends list in Firebase
+          await _userRef.child(userKey).update({'friends': friends});
+          print(
+              'Friend (UID: $friendUid) added successfully to $userId\'s list.');
+        } else {
+          print('Friend (UID: $friendUid) is already in the list.');
+        }
+      } else {
+        print('User with userId "$userId" not found.');
+      }
+    } catch (error) {
+      print('Error adding friend: $error');
     }
   }
 }

@@ -1,9 +1,11 @@
-import 'package:chit_chat/controller/user_controller.dart';
+import 'package:chit_chat/controller/realtime_db/realtime_db_controller.dart';
+import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LoginView extends StatelessWidget {
   UserController userController = Get.put(UserController());
+  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
   LoginView({super.key});
 
   @override
@@ -47,6 +49,10 @@ class LoginView extends StatelessWidget {
           )
         ],
       ),
+      floatingActionButton: FloatingActionButton(onPressed: (() {
+        // realtimeDbController.getAllUsers();
+        realtimeDbController.getUserById('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
+      })),
     );
   }
 }

@@ -1,11 +1,17 @@
+import 'package:chit_chat/controller/realtime_db/realtime_db_controller.dart';
+import 'package:chit_chat/model/user.dart';
+import 'package:chit_chat/view/home/home_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class UserController extends GetxController {
-  late Box _userBox;
+  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
 
+  late Box _userBox;
+  RxString userName = ''.obs;
+  RxString userId = ''.obs;
   @override
   Future<void> onInit() async {
     await Hive.initFlutter();
@@ -13,19 +19,24 @@ class UserController extends GetxController {
     super.onInit();
   }
 
-  void saveUser(String userId, String username) {
+  void saveUser(String? userId, String? username) {
     _userBox.put("userId", userId);
     _userBox.put("username", username);
     print("User data saved!");
   }
 
-  Map<String, String?> getUser() {
-    String? userId = _userBox.get("userId");
-    String? username = _userBox.get("username");
-    return {
-      "userId": userId,
-      "username": username,
-    };
+  Future<LocalUser> getUser() async {
+    String? userIdString = await _userBox.get("userId");
+    String? usernameString = await _userBox.get("username");
+
+    // If userId is retrieved, update the RxString values.
+    if (userIdString != null && usernameString != null) {
+      userId.value = userIdString;
+      userName.value = usernameString;
+    }
+    // Return the LocalUser object after updating values
+    LocalUser user = LocalUser(userId: userId.value, username: usernameString);
+    return user;
   }
 
   void clearUser() {
@@ -33,35 +44,6 @@ class UserController extends GetxController {
     _userBox.delete("username");
     print("User data cleared!");
   }
-
-  // Future<User?> signInWithGoogle() async {
-  //   try {
-  //     final GoogleSignIn googleSignIn = GoogleSignIn();
-  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
-  //     if (googleUser == null) {
-  //       return null; // User canceled the sign-in
-  //     }
-
-  //     final GoogleSignInAuthentication? googleAuth =
-  //         await googleUser.authentication;
-
-  //     // Extract access token and ID token
-  //     String? accessToken = googleAuth?.accessToken;
-  //     String? idToken = googleAuth?.idToken;
-  //     print("User id: ${googleUser.id}");
-  //     print("User email: ${googleUser.email}");
-  //     print("User name: ${googleUser.displayName}");
-
-  //     // Log tokens or store them as needed
-  //     print("Access Token: $accessToken");
-  //     print("ID Token: $idToken");
-
-  //     return null;
-  //   } catch (error) {
-  //     print("Error signing in with Google: $error");
-  //     return null;
-  //   }
-  // }
 
   Future<User?> signInWithGoogle() async {
     try {
@@ -89,11 +71,18 @@ class UserController extends GetxController {
       // Get the signed-in user
       final User? firebaseUser = userCredential.user;
 
-      // Log user information
-      print("Firebase User ID: ${firebaseUser?.uid}");
-      print("User Email: ${firebaseUser?.email}");
-      print("User Name: ${firebaseUser?.displayName}");
+      //Check User exist in db
 
+      if (firebaseUser != null) {
+        String uid = firebaseUser.uid;
+        realtimeDbController.checkUserExistInDb(uid);
+      }
+
+      // realtimeDbController.saveNewUserToFirebase(firebaseUser);
+
+      // ถ้าสำเร็จ ให้บันทึก User
+      saveUser(firebaseUser?.uid, firebaseUser?.displayName);
+      Get.to(HomeView());
       return firebaseUser;
     } catch (error) {
       print("Error signing in with Google: $error");

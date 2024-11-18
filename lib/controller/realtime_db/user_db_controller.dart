@@ -1,15 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:get/get.dart';
 
-class RealtimeDbController {
+import '../../model/user.dart';
+
+class RealtimeDbController extends GetxController {
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
 
-// "_id": "userId1", //Id จาก Google
-//   "username": "UserOne",
-//   "friends": firendshipid1,
-//   "chats": ["chatId1", "chatId2"],
-//   "userId" : "pondzaa,bigpim"
+  RxBool userFound = false.obs;
+  RxString userName = ''.obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     _userRef.push().set({
@@ -76,24 +76,30 @@ class RealtimeDbController {
     }
   }
 
-  Future<bool> findFriendsById(String userId) async {
+  Future<void> findFriendsById(String userId) async {
     try {
+      userFound.value = false;
+
       Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
       DatabaseEvent event = await userQuery.once();
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists) {
-        // The user exists
-        Map userData = snapshot.value as Map;
-        print('User found: $userData');
-        return true;
+        print("Raw Snapshot Value: ${snapshot.value}");
+        Map<dynamic, dynamic> userData =
+            snapshot.value as Map<dynamic, dynamic>;
+
+        Map<String, dynamic> userMap =
+            Map<String, dynamic>.from(userData.values.first);
+        UserInstance user = UserInstance.fromMap(userMap);
+        print("Username: ${user.username}");
+        userName.value = user.username;
+        userFound.value = true;
       } else {
-        print('No user found with ID: $userId');
-        return false;
+        print("No user found with userId: $userId");
       }
-    } catch (error) {
-      print('Error finding user: $error');
-      return false;
+    } catch (e) {
+      print("Error finding user by ID: $e");
     }
   }
 }

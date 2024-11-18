@@ -1,4 +1,6 @@
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AddFriendsView extends StatefulWidget {
@@ -9,19 +11,15 @@ class AddFriendsView extends StatefulWidget {
 }
 
 class _AddFriendsViewState extends State<AddFriendsView> {
-  // Create a TextEditingController to manage the text input
   final TextEditingController _friendIdController = TextEditingController();
-
-  // Create a GlobalKey to manage the form state
+  RealtimeDbController userDbController = Get.put(RealtimeDbController());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Method to validate the form
   void _validateAndSubmit() {
     if (_formKey.currentState!.validate()) {
-      // If the form is valid, proceed with the action
-      print("Form is valid: ${_friendIdController.text}");
+      // print("Form is valid: ${_friendIdController.text}");
+      userDbController.findFriendsById(_friendIdController.text);
     } else {
-      // If the form is invalid, show an error message
       print("Form is invalid");
     }
   }
@@ -60,6 +58,12 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                           borderRadius: BorderRadius.circular(
                               15.0), // Set the border radius
                         ),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: () {
+                            _validateAndSubmit();
+                          },
+                        ),
                       ),
                       // Add a validator to ensure the field is not empty
                       validator: (value) {
@@ -73,34 +77,46 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                   const SizedBox(
                     height: 100,
                   ),
-                  InkWell(
-                    onTap: _validateAndSubmit, // Trigger validation on tap
-                    borderRadius: BorderRadius.circular(15),
-                    splashColor: Colors.green,
-                    child: Ink(
-                      width: 150,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Color(0xFFFFDDAE),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.search),
-                          const SizedBox(
-                            width: 15,
-                          ),
-                          Text("ค้นหา",
-                              style: GoogleFonts.kanit(
-                                fontSize: 20,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
+                  Obx(() {
+                    return userDbController.userFound.value
+                        ? Container(
+                            width: 100,
+                            height: 200,
+                            color: Colors.black38,
+                            child: Column(
+                              children: [Text(userDbController.userName.value)],
+                            ),
+                          )
+                        : Text("Not Found");
+                  })
+                  // InkWell(
+                  //   onTap: _validateAndSubmit, // Trigger validation on tap
+                  //   borderRadius: BorderRadius.circular(15),
+                  //   splashColor: Colors.green,
+                  //   child: Ink(
+                  //     width: 150,
+                  //     height: 50,
+                  //     decoration: BoxDecoration(
+                  //       borderRadius: BorderRadius.circular(15),
+                  //       color: Color(0xFFFFDDAE),
+                  //     ),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.center,
+                  //       children: [
+                  //         const Icon(Icons.search),
+                  //         const SizedBox(
+                  //           width: 15,
+                  //         ),
+                  //         Text("ค้นหา",
+                  //             style: GoogleFonts.kanit(
+                  //               fontSize: 20,
+                  //               color: Colors.black,
+                  //               fontWeight: FontWeight.bold,
+                  //             )),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),

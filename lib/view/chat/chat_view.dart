@@ -37,18 +37,31 @@ class _ChatViewState extends State<ChatView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFDDAE),
-        title: Obx(() {
-          return Text(
-            chatDbController.currentChatDuoName.value,
-            style: GoogleFonts.kanit(
-              fontWeight: FontWeight.bold,
-            ),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFDDAE),
+          title: Obx(() {
+            return Text(
+              chatDbController.currentChatDuoName.value,
+              style: GoogleFonts.kanit(
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          }),
+        ),
+        body: Obx(() {
+          return ListView.builder(
+            itemCount: chatDbController.messageList.length,
+            itemBuilder: (context, index) {
+              // Get the whole message object from the list
+              final message = chatDbController.messageList[index];
+
+              return ListTile(
+                title: Text("${message.text}"),
+                // subtitle: Text("Sent by: ${message.senderId}"),
+                // trailing: Text(message.timeStamp.toIso8601String()),
+              );
+            },
           );
-        }),
-      ),
-      body: Center(child: Text('Chat messages go here')),
-    );
+        }));
   }
 }

@@ -31,8 +31,8 @@ class _AllChatViewState extends State<AllChatView> {
                 //Mockup Function
 
                 chatDbController.sendMessage(
-                    chatId: "-OC2H9mxZtxOEBBqP3Ec",
-                    senderId: "HQkGkOzTDiX0WglqaysNzcgr1O33",
+                    chatId: "-OC2cc_e2SVC_l439syH",
+                    senderId: "LlpNuYauPAhoyCqreYF6PBQhenD2",
                     text: "สวัสดีย์");
               },
               child: Text("Send Message Mock")),
@@ -47,7 +47,7 @@ class _AllChatViewState extends State<AllChatView> {
               onPressed: () {
                 //Mockup Function
 
-                chatDbController.getChatMessages("-OC2H9mxZtxOEBBqP3Ec");
+                chatDbController.getChatMessages("-OC2cc_e2SVC_l439syH");
               },
               child: Text("GetMessagess")),
         ],

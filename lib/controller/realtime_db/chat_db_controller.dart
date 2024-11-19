@@ -1,6 +1,7 @@
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/model/user.dart';
 import 'package:chit_chat/view/chat/chat_view.dart';
+import 'package:chit_chat/view_model/messages.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
 
@@ -10,6 +11,25 @@ class ChatDbController extends GetxController {
   UserDbController userDbController = Get.put(UserDbController());
   RxString currentChatDuoName = ''.obs;
   RxString currentChatId = ''.obs;
+  RxList messageList = <Messages>[].obs;
+
+  // RxList<Messages> messageList = <Messages>[
+  //   Messages(
+  //     senderId: 'user1',
+  //     text: 'Hello, how are you?',
+  //     timeStamp: DateTime.now().subtract(Duration(minutes: 5)),
+  //   ),
+  //   Messages(
+  //     senderId: 'user2',
+  //     text: 'I\'m doing well, thanks! How about you?',
+  //     timeStamp: DateTime.now().subtract(Duration(minutes: 3)),
+  //   ),
+  //   Messages(
+  //     senderId: 'user1',
+  //     text: 'I\'m good too, just a little tired.',
+  //     timeStamp: DateTime.now().subtract(Duration(minutes: 1)),
+  //   ),
+  // ].obs;
 
   void setCurrentChat(String duoName, String chatId) {
     currentChatDuoName.value = duoName;
@@ -111,6 +131,7 @@ class ChatDbController extends GetxController {
     databaseRef.onValue.listen((event) {
       if (event.snapshot.exists) {
         // print("Data changed at $path: ${event.snapshot.value}");
+        // กรองเอง
         getChatMessages(currentChatId.value);
       } else {
         print("No data found at $path");
@@ -120,26 +141,18 @@ class ChatDbController extends GetxController {
     });
   }
 
-  Future<List<CurrentChat>> getChatMessages(String chatId) async {
-    // Reference to the Firebase database
+  Future<void> getChatMessages(String chatId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-
     try {
-      // Reference to the specific chat's messages node
       DatabaseReference chatRef =
           databaseRef.child("chats").child(chatId).child("messages");
-
-      // Get data from the database
       DataSnapshot snapshot = await chatRef.get();
-
       if (snapshot.exists) {
         // Parse the data into a list of CurrentChat objects
-        final List<CurrentChat> messages = snapshot.children.map((child) {
+        final List<Messages> messages = snapshot.children.map((child) {
           final messageData = child.value as Map<dynamic, dynamic>;
-
-          // Validate and map data
-          return CurrentChat(
-            message: messageData['text'] ?? '',
+          return Messages(
+            text: messageData['text'] ?? '',
             senderId: messageData['senderId'] ?? '',
             timeStamp: messageData['timestamp'] != null
                 ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
@@ -147,15 +160,17 @@ class ChatDbController extends GetxController {
           );
         }).toList();
 
+        messageList.assignAll(messages);
+
+        // Messages คือที่ได้รับมา
+
         print("Fetched ${messages.length} messages for chat ID: $chatId");
-        return messages; // Return the list of messages
+        return;
       } else {
         print("No messages found for chat ID: $chatId");
-        return []; // Return an empty list if no messages exist
       }
     } catch (e) {
       print("Error fetching messages: $e");
-      return []; // Return an empty list in case of an error
     }
   }
 }

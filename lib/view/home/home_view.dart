@@ -14,7 +14,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   UserController userController = Get.put(UserController());
-  UserDbController realtimeDbController = Get.put(UserDbController());
+  UserDbController userDbController = Get.put(UserDbController());
 
   // To track the selected tab
   int _selectedIndex = 0;
@@ -41,51 +41,56 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFFFDDAE),
-        leading: const Icon(Icons.image),
-        title: Obx(() {
-          return Text(
-            userController.userName.value,
-            style: GoogleFonts.kanit(
-              fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFFFDDAE),
+          leading: const Icon(Icons.image),
+          title: Obx(() {
+            return Text(
+              userController.userName.value,
+              style: GoogleFonts.kanit(
+                fontWeight: FontWeight.bold,
+              ),
+            );
+          }),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () {
+                print("Add Friend");
+                Get.to(AddFriendsView());
+              },
+              icon: const Icon(Icons.person_add),
             ),
-          );
-        }),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () {
-              print("Add Friend");
-              Get.to(AddFriendsView());
-            },
-            icon: const Icon(Icons.person_add),
-          ),
-        ],
-      ),
-      body: IndexedStack(
-        index: _selectedIndex, // Display the selected page from the _pages list
-        children: _pages, // All pages are kept alive in the background
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex, // Current selected tab index
-        onTap: _onItemTapped, // Handle tab selection
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.group),
-            label: 'Friends',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+        body: IndexedStack(
+          index:
+              _selectedIndex, // Display the selected page from the _pages list
+          children: _pages, // All pages are kept alive in the background
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _selectedIndex, // Current selected tab index
+          onTap: _onItemTapped, // Handle tab selection
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.group),
+              label: 'Friends',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: (() {
+            userDbController.getFriendsList(userController.userUid.value);
+          }),
+        ));
   }
 }
 

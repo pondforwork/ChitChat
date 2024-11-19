@@ -12,12 +12,11 @@ class FriendListView extends StatefulWidget {
 
 class _FriendListViewState extends State<FriendListView> {
   UserController userController = UserController();
-  UserDbController userDbController = UserDbController();
+  UserDbController userDbController = Get.put(UserDbController());
 
   @override
   void initState() {
     // Fetch friend list on initialization
-    userDbController.getFriendsList();
     super.initState();
   }
 
@@ -29,21 +28,21 @@ class _FriendListViewState extends State<FriendListView> {
       ),
       body: Obx(() {
         // Observe the friend list
-        if (userDbController.friendList.isEmpty) {
+        if (userDbController.friendListObx.isEmpty) {
           return const Center(child: Text("No friends found."));
         }
 
         return ListView.builder(
-          itemCount: userDbController.friendList.length,
+          itemCount: userDbController.friendListObx.length,
           itemBuilder: (context, index) {
-            final friend = userDbController.friendList[index];
+            final friend = userDbController.friendListObx[index];
             return ListTile(
               leading: CircleAvatar(
-                backgroundImage: friend.photoUrl != null
-                    ? NetworkImage(friend.photoUrl!)
+                backgroundImage: friend.photoURL != null
+                    ? NetworkImage(friend.photoURL!)
                     : null,
                 child:
-                    friend.photoUrl == null ? const Icon(Icons.person) : null,
+                    friend.photoURL == null ? const Icon(Icons.person) : null,
               ),
               title: Text(friend.username ?? "Unknown"),
               subtitle: Text(friend.email ?? "No email provided"),

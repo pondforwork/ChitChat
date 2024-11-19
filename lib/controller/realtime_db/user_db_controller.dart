@@ -1,4 +1,5 @@
 import 'package:chit_chat/controller/user/user_controller.dart';
+import 'package:chit_chat/view_model/friends.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
@@ -15,7 +16,16 @@ class UserDbController extends GetxController {
   RxString friendUserId = ''.obs;
   RxString friendUid = ''.obs;
   RxString photoUrl = ''.obs;
-  RxList friendList = <UserInstance>[].obs;
+  // RxList friendListObx = <Friend>[].obs;
+  RxList<Friend> friendListObx = [
+    Friend(
+        id: "asdf",
+        username: "John Doe",
+        email: "john.doe@example.com",
+        photoURL: '',
+        status: '',
+        userId: ''),
+  ].obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     try {
@@ -148,78 +158,6 @@ class UserDbController extends GetxController {
     }
   }
 
-  // void addFriend(String userUid, String friendUid) async {
-  //   try {
-  //     // Step 1: Find the user object by `userUid`
-  //     Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
-  //     DatabaseEvent userEvent = await userQuery.once();
-  //     DataSnapshot userSnapshot = userEvent.snapshot;
-
-  //     if (!userSnapshot.exists) {
-  //       print('User not found with userUid: $userUid');
-  //       return;
-  //     }
-
-  //     // Extract user object
-  //     Map<dynamic, dynamic> userData =
-  //         userSnapshot.value as Map<dynamic, dynamic>;
-  //     String userKey =
-  //         userData.keys.first; // Assuming a single user is returned
-  //     Map<dynamic, dynamic> userObject = userData[userKey];
-
-  //     // Step 2: Find the friend object by `friendUid`
-  //     Query friendQuery = _userRef.orderByChild('_id').equalTo(friendUid);
-  //     DatabaseEvent friendEvent = await friendQuery.once();
-  //     DataSnapshot friendSnapshot = friendEvent.snapshot;
-
-  //     if (!friendSnapshot.exists) {
-  //       print('Friend not found with friendUid: $friendUid');
-  //       return;
-  //     }
-
-  //     // Extract friend object
-  //     Map<dynamic, dynamic> friendData =
-  //         friendSnapshot.value as Map<dynamic, dynamic>;
-  //     String friendKey =
-  //         friendData.keys.first; // Assuming a single friend is returned
-  //     Map<dynamic, dynamic> friendObject = friendData[friendKey];
-
-  //     // Step 3: Prepare user and friend objects to insert into each other's lists
-  //     Map<String, dynamic> userToInsert = {
-  //       '_id': userObject['_id'] ?? '',
-  //       'lastMessage': '',
-  //       'lastMessageTime': '',
-  //       'photoUrl': userObject['photoUrl'] ?? '',
-  //       'status': 'friend',
-  //       'userId': userObject['userId'] ?? '',
-  //       'username': userObject['username'] ?? '',
-  //     };
-
-  //     Map<String, dynamic> friendToInsert = {
-  //       '_id': friendObject['_id'] ?? '',
-  //       'lastMessage': '',
-  //       'lastMessageTime': '',
-  //       'photoUrl': friendObject['photoUrl'] ?? '',
-  //       'status': 'friend',
-  //       'userId': friendObject['userId'] ?? '',
-  //       'username': friendObject['username'] ?? '',
-  //     };
-
-  //     // Step 4: Insert friend into user's friends list
-  //     DatabaseReference userFriendsRef = _userRef.child('$userKey/friends');
-  //     DatabaseReference newFriendRefForUser = userFriendsRef.push();
-  //     await newFriendRefForUser.set(friendToInsert);
-
-  //     // Step 5: Insert user into friend's friends list
-  //     DatabaseReference friendFriendsRef = _userRef.child('$friendKey/friends');
-  //     DatabaseReference newFriendRefForFriend = friendFriendsRef.push();
-  //     await newFriendRefForFriend.set(userToInsert);
-
-  //     print('Friends added successfully!');
-  //   } catch (error) {
-  //     print('Error adding friend: $error');
-  //   }
-  // }
   void addFriend(String userUid, String friendUid) async {
     try {
       // Step 1: Find the user object by `userUid`
@@ -305,51 +243,70 @@ class UserDbController extends GetxController {
     }
   }
 
-  Future<List<UserInstance>> getFriendsList() async {
+  Future<void> getFriendsList(String userUid) async {
     try {
-      String myUserId = 'LlpNuYauPAhoyCqreYF6PBQhenD2';
+      // Step 1: Find the user by userUid
+      Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
+      DatabaseEvent userEvent = await userQuery.once();
+      DataSnapshot userSnapshot = userEvent.snapshot;
 
-      // Query to find the user by userId
-      Query userQuery = _userRef.orderByChild('_id').equalTo(myUserId);
-      DatabaseEvent event = await userQuery.once();
-      DataSnapshot snapshot = event.snapshot;
-
-      if (snapshot.exists) {
-        // Extract the user key and fetch the friends list
-        Map<String, dynamic> userMap =
-            Map<String, dynamic>.from(snapshot.value as Map);
-        String userKey = userMap.keys.first;
-        List<dynamic> friendIds = userMap[userKey]['friends'] ?? [];
-
-        // Fetch friend details based on friendIds
-        List<UserInstance> friends = [];
-        for (String friendId in friendIds.cast<String>()) {
-          Query friendQuery = _userRef.orderByChild('_id').equalTo(friendId);
-          DatabaseEvent friendEvent = await friendQuery.once();
-          DataSnapshot friendSnapshot = friendEvent.snapshot;
-
-          if (friendSnapshot.exists) {
-            // Assuming each friend entry has a single user object
-            Map<String, dynamic> friendMap =
-                Map<String, dynamic>.from(friendSnapshot.value as Map);
-            String friendKey = friendMap.keys.first;
-            Map<String, dynamic> friendData =
-                Map<String, dynamic>.from(friendMap[friendKey]);
-            friends.add(UserInstance.fromMap(friendData));
-            friendList.add(UserInstance.fromMap(friendData));
-          }
-        }
-        print("FriendList");
-        print(friends);
-        print(friendList);
-        return friends;
-      } else {
-        print('User with userId "$myUserId" not found.');
-        return [];
+      if (!userSnapshot.exists) {
+        print('User not found with userUid: $userUid');
+        return;
       }
+
+      // Extract user data
+      Map<String, dynamic> userData =
+          Map<String, dynamic>.from(userSnapshot.value as Map);
+      String userKey = userData.keys.first;
+      Map<dynamic, dynamic> userObject = userData[userKey];
+
+      // Step 2: Get the list of friend IDs (assumed to be under 'friends')
+      Map<dynamic, dynamic>? friendIds =
+          userObject['friends'] as Map<dynamic, dynamic>?;
+
+      if (friendIds == null || friendIds.isEmpty) {
+        print('No friends found for this user.');
+        return;
+      }
+
+      // Step 3: Fetch friend details based on friend IDs
+      List<Friend> friendsList = [];
+
+      // Loop through the friend IDs and fetch the friend details
+      for (String friendId in friendIds.keys) {
+        Query friendQuery = _userRef.orderByChild('_id').equalTo(friendId);
+        DatabaseEvent friendEvent = await friendQuery.once();
+        DataSnapshot friendSnapshot = friendEvent.snapshot;
+
+        if (friendSnapshot.exists) {
+          // Extract friend data
+          Map<String, dynamic> friendData =
+              Map<String, dynamic>.from(friendSnapshot.value as Map);
+          String friendKey = friendData.keys.first;
+          Map<String, dynamic> friendObject =
+              Map<String, dynamic>.from(friendData[friendKey]);
+
+          // Create Friends instance from the friend data
+          Friend friend = Friend.fromMap(friendObject);
+
+          friendsList.add(friend);
+          friendListObx.add(friend);
+
+          // this.friendList.add(friend);
+        }
+      }
+
+      // Step 4: Print or return the list of friends
+      print('Friends List:');
+      for (var friend in friendsList) {
+        print('Friend: ${friend.username}');
+      }
+      print("Obx List");
+      print(friendListObx);
+      // Optionally, you can return the friendsList or use it as needed
     } catch (error) {
       print('Error fetching friends list: $error');
-      return [];
     }
   }
 }

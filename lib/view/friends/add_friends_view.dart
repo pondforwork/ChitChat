@@ -116,7 +116,8 @@ class _AddFriendsViewState extends State<AddFriendsView> {
                                     ),
                                     InkWell(
                                       onTap: () {
-                                        userDbController.addFriend("Test",
+                                        userDbController.addFriend(
+                                            userController.userUid.value,
                                             userDbController.friendUid.value);
                                       },
                                       borderRadius: BorderRadius.circular(15),

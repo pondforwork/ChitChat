@@ -15,31 +15,7 @@ class UserDbController extends GetxController {
   RxString friendUserId = ''.obs;
   RxString friendUid = ''.obs;
   RxString photoUrl = ''.obs;
-
-  // void saveNewUserToFirebase(User? firebaseUser) {
-  //   try {
-  //     // Generate a new Firebase key
-  //     DatabaseReference newUserRef = _userRef.push();
-  //     String newKey = newUserRef.key!;
-
-  //     // Save user data with the generated key as the _id
-  //     newUserRef.set({
-  //       '_id': newKey, // Use the generated key here
-  //       'username': firebaseUser!.displayName,
-  //       'photoUrl': '',
-  //       'email': firebaseUser.email,
-  //       'friends': [],
-  //       'chats': [],
-  //       'userId': '',
-  //     }).then((_) {
-  //       print('User saved successfully with _id: $newKey');
-  //     }).catchError((error) {
-  //       print('Failed to save User: $error');
-  //     });
-  //   } catch (error) {
-  //     print('Error saving user: $error');
-  //   }
-  // }
+  RxList friendList = <UserInstance>[].obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     try {
@@ -118,35 +94,6 @@ class UserDbController extends GetxController {
     }
   }
 
-  // Future<void> findFriendsById(String userId) async {
-  //   try {
-  //     isInitial.value = false;
-  //     userFound.value = false;
-  //     Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
-  //     DatabaseEvent event = await userQuery.once();
-  //     DataSnapshot snapshot = event.snapshot;
-
-  //     if (snapshot.exists) {
-  //       print("Raw Snapshot Value: ${snapshot.value}");
-  //       Map<dynamic, dynamic> userData =
-  //           snapshot.value as Map<dynamic, dynamic>;
-
-  //       Map<String, dynamic> userMap =
-  //           Map<String, dynamic>.from(userData.values.first);
-  //       UserInstance user = UserInstance.fromMap(userMap);
-  //       print("Username: ${user.username}");
-  //       userName.value = user.username;
-  //       this.friendUserId.value = user.userId;
-  //       friendUid.value = user.id;
-  //       userFound.value = true;
-  //       photoUrl.value = user.photoUrl!;
-  //     } else {
-  //       print("No user found with userId: $userId");
-  //     }
-  //   } catch (e) {
-  //     print("Error finding user by ID: $e");
-  //   }
-  // }
   Future<void> findFriendsById(String userId) async {
     try {
       isInitial.value = false;
@@ -270,9 +217,12 @@ class UserDbController extends GetxController {
             Map<String, dynamic> friendData =
                 Map<String, dynamic>.from(friendMap[friendKey]);
             friends.add(UserInstance.fromMap(friendData));
+            friendList.add(UserInstance.fromMap(friendData));
           }
         }
+        print("FriendList");
         print(friends);
+        print(friendList);
         return friends;
       } else {
         print('User with userId "$myUserId" not found.');

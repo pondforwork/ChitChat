@@ -59,7 +59,7 @@ class LoginView extends StatelessWidget {
       floatingActionButton: FloatingActionButton(onPressed: (() {
         // realtimeDbController.getAllUsers();
         // realtimeDbController.checkUserExists('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
-        chatDbController.saveMockMessage();
+        // chatDbController.saveMockMessage();
       })),
     );
   }

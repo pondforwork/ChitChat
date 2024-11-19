@@ -107,6 +107,7 @@ class _HomeViewState extends State<HomeView> {
           onPressed: (() {
             userDbController.getFriendsList(userController.userUid.value);
           }),
+          child: Icon(Icons.refresh),
         ));
   }
 }

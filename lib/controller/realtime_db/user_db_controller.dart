@@ -196,7 +196,7 @@ class UserDbController extends GetxController {
   void addFriend(String userUid, String friendUid) async {
     try {
       // Step 1: Find the user object by `userUid`
-      Query userQuery = _userRef.orderByChild('userId').equalTo(userUid);
+      Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
       DatabaseEvent userEvent = await userQuery.once();
       DataSnapshot userSnapshot = userEvent.snapshot;
 

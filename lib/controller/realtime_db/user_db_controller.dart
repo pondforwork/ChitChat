@@ -237,6 +237,7 @@ class UserDbController extends GetxController {
 
   Future<void> getFriendsList(String userUid) async {
     try {
+      friendListObx.value = [];
       // Step 1: Find the user by userUid
       Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
       DatabaseEvent userEvent = await userQuery.once();

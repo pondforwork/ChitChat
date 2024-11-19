@@ -17,7 +17,21 @@ class _ChatViewState extends State<ChatView> {
   @override
   void initState() {
     super.initState();
-    // You can perform other initializations here if needed
+    // print("CurrentChatId");
+    // รับ CurrentChatId
+    print("CurrentChatId");
+    print(chatDbController.currentChatId);
+
+    // chatDbController.getChatMessages(chatDbController.currentChatId.value);
+    chatDbController.watchDatabaseChanges("chats");
+  }
+
+  @override
+  void dispose() {
+    // Clean up resources, unsubscribe from streams, controllers, etc.
+    // Example: chatDbController.dispose();
+    print("ChatView disposed.");
+    super.dispose();
   }
 
   @override

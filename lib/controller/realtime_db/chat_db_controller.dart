@@ -110,7 +110,8 @@ class ChatDbController extends GetxController {
     final databaseRef = FirebaseDatabase.instance.ref(path);
     databaseRef.onValue.listen((event) {
       if (event.snapshot.exists) {
-        print("Data changed at $path: ${event.snapshot.value}");
+        // print("Data changed at $path: ${event.snapshot.value}");
+        getChatMessages(currentChatId.value);
       } else {
         print("No data found at $path");
       }

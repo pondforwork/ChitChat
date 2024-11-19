@@ -11,18 +11,20 @@ class UserController extends GetxController {
 
   late Box _userBox;
   RxString userName = ''.obs;
-
   RxString userUid = ''.obs;
+  RxString photoUrl = ''.obs;
   @override
   Future<void> onInit() async {
-    // await Hive.initFlutter();
-    // _userBox = await Hive.openBox("user");
+    await Hive.initFlutter();
+    _userBox = await Hive.openBox("user");
     super.onInit();
   }
 
-  void saveLocalUser(String? userId, String? username) {
+  void saveLocalUser(String? userId, String? username, String? photoURL) {
     _userBox.put("userId", userId);
     _userBox.put("username", username);
+    _userBox.put("photoURL", photoURL);
+
     print("User data saved!");
   }
 
@@ -31,13 +33,18 @@ class UserController extends GetxController {
     _userBox = await Hive.openBox("user");
     String? userIdString = await _userBox.get("userId");
     String? usernameString = await _userBox.get("username");
+    String? photoURLString = await _userBox.get("photoURL");
+    print(photoURLString);
     // If userId is retrieved, update the RxString values.
-    if (userIdString != null && usernameString != null) {
+    if (userIdString != null &&
+        usernameString != null &&
+        photoURLString != null) {
       print("UserId not null");
       print(userUid.value);
       print(userIdString);
       userUid.value = userIdString;
       userName.value = usernameString;
+      photoUrl.value = photoURLString;
     } else {
       print("User is Empty");
     }
@@ -84,10 +91,12 @@ class UserController extends GetxController {
           Get.to(HomeView());
         } else {
           realtimeDbController.saveNewUserToFirebase(firebaseUser);
-          saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
+          saveLocalUser(firebaseUser.uid, firebaseUser.displayName,
+              firebaseUser.photoURL);
           Get.to(HomeView());
         }
-        saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
+        saveLocalUser(
+            firebaseUser.uid, firebaseUser.displayName, firebaseUser.photoURL);
       }
 
       return firebaseUser;

@@ -51,8 +51,8 @@ class _HomeViewState extends State<HomeView> {
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     image: NetworkImage(
-                      userDbController.photoUrl.value.isNotEmpty
-                          ? userDbController.photoUrl.value
+                      userController.photoUrl.value.isNotEmpty
+                          ? userController.photoUrl.value
                           : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUwCJYSnbBLMEGWKfSnWRGC_34iCCKkxePpg&s', // Fallback image
                     ),
                     fit: BoxFit.cover, // Ensures image covers the whole circle

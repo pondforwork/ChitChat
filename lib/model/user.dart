@@ -5,6 +5,7 @@ class UserInstance {
   List<String> chats;
   String userId;
   String? photoUrl;
+  String email; // New non-nullable email field
 
   UserInstance({
     required this.id,
@@ -12,6 +13,7 @@ class UserInstance {
     required this.friends,
     required this.chats,
     required this.userId,
+    required this.email, // Added as required
     this.photoUrl,
   });
 
@@ -26,11 +28,11 @@ class UserInstance {
           ? List<String>.from(map['chats'] as List<dynamic>)
           : [],
       userId: map['userId'] ?? '',
+      email: map['email'] ?? '', // Ensure a default value if missing
       photoUrl: map['photoUrl'], // Handle null case automatically
     );
   }
 
-  // Updated toMap method
   Map<String, dynamic> toMap() {
     return {
       '_id': id,
@@ -39,6 +41,7 @@ class UserInstance {
       'chats': chats,
       'userId': userId,
       'photoUrl': photoUrl,
+      'email': email, // Added to the map
     };
   }
 }

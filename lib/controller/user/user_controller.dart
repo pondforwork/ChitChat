@@ -80,6 +80,7 @@ class UserController extends GetxController {
         if (await realtimeDbController.checkUserExists(uid)) {
           Get.to(HomeView());
         } else {
+          realtimeDbController.saveNewUserToFirebase(firebaseUser);
           saveLocalUser(firebaseUser.uid, firebaseUser.displayName);
           Get.to(HomeView());
         }

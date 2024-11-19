@@ -103,17 +103,10 @@ class UserDbController extends GetxController {
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists) {
-        print("Raw Snapshot Value: ${snapshot.value}");
-
-        // Ensure snapshot.value is a map
+        // print("Raw Snapshot Value: ${snapshot.value}");
         final userData = snapshot.value as Map<dynamic, dynamic>;
-
-        // Extract the first user (if there are multiple matches)
         final firstEntry = userData.entries.first;
-
-        // Ensure the value is a map
         final userMap = Map<String, dynamic>.from(firstEntry.value);
-
         // Handle friends as a Map<String, dynamic>
         final friendsData = userMap['friends'] as Map<dynamic, dynamic>? ?? {};
         final friendsList = friendsData.entries
@@ -131,7 +124,10 @@ class UserDbController extends GetxController {
           username: userMap['username'] ?? '',
           friends: friendsList, // Assign as List<String>
           chats: userMap['chats'] != null
-              ? List<String>.from(userMap['chats'] as List<dynamic>)
+              ? (userMap['chats'] as Map<dynamic, dynamic>)
+                  .keys
+                  .map((key) => key.toString())
+                  .toList()
               : [],
           email: userMap['email'] ?? '',
           userId: userMap['userId'] ?? '',
@@ -143,7 +139,7 @@ class UserDbController extends GetxController {
         this.friendUserId.value = user.userId;
         friendUid.value = user.id;
         userFound.value = true;
-        photoUrl.value = user.photoUrl ?? ''; // Use a default if null
+        photoUrl.value = user.photoUrl ?? '';
       } else {
         print("No user found with userId: $userId");
       }
@@ -152,35 +148,102 @@ class UserDbController extends GetxController {
     }
   }
 
-  void addFriend(String userId, String friendUid) async {
+  // void addFriend(String userId, String friendUid) async {
+  //   try {
+  //     // Search for the user by userId
+  //     Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
+  //     DatabaseEvent event = await userQuery.once();
+  //     DataSnapshot snapshot = event.snapshot;
+
+  //     if (snapshot.exists) {
+  //       // Extract the first user's key (Firebase auto-generated key)
+  //       String userKey = (snapshot.value as Map).keys.first;
+
+  //       // Retrieve the current friends list or initialize it if absent
+  //       List<dynamic> friends = List<dynamic>.from(
+  //           (snapshot.value as Map)[userKey]['friends'] ?? []);
+
+  //       // Add the friend's uid (friendUid) if not already in the list
+  //       if (!friends.contains(friendUid)) {
+  //         friends.add(friendUid);
+
+  //         // Update the friends list in Firebase
+  //         await _userRef.child(userKey).update({'friends': friends});
+  //         print(
+  //             'Friend (UID: $friendUid) added successfully to $userId\'s list.');
+  //       } else {
+  //         print('Friend (UID: $friendUid) is already in the list.');
+  //       }
+  //     } else {
+  //       print('User with userId "$userId" not found.');
+  //     }
+  //   } catch (error) {
+  //     print('Error adding friend: $error');
+  //   }
+  // }
+
+  // void addFriend(String userUid, String friendUid) async {
+  //   try {
+  //     // i need to find object id = userUid
+  //     // insert friends under that object by find from friendUid and
+  //     // insert to that object as object in column "friend"
+  //     // in object has a // _id , lastMessage, lastMessageTime , photoUrl , status , userId , username
+  //   } catch (error) {
+  //     print('Error adding friend: $error');
+  //   }
+  // }
+
+  void addFriend(String userUid, String friendUid) async {
     try {
-      // Search for the user by userId
-      Query userQuery = _userRef.orderByChild('userId').equalTo(userId);
-      DatabaseEvent event = await userQuery.once();
-      DataSnapshot snapshot = event.snapshot;
+      // Step 1: Find the user object by `userUid`
+      Query userQuery = _userRef.orderByChild('userId').equalTo(userUid);
+      DatabaseEvent userEvent = await userQuery.once();
+      DataSnapshot userSnapshot = userEvent.snapshot;
 
-      if (snapshot.exists) {
-        // Extract the first user's key (Firebase auto-generated key)
-        String userKey = (snapshot.value as Map).keys.first;
-
-        // Retrieve the current friends list or initialize it if absent
-        List<dynamic> friends = List<dynamic>.from(
-            (snapshot.value as Map)[userKey]['friends'] ?? []);
-
-        // Add the friend's uid (friendUid) if not already in the list
-        if (!friends.contains(friendUid)) {
-          friends.add(friendUid);
-
-          // Update the friends list in Firebase
-          await _userRef.child(userKey).update({'friends': friends});
-          print(
-              'Friend (UID: $friendUid) added successfully to $userId\'s list.');
-        } else {
-          print('Friend (UID: $friendUid) is already in the list.');
-        }
-      } else {
-        print('User with userId "$userId" not found.');
+      if (!userSnapshot.exists) {
+        print('User not found with userUid: $userUid');
+        return;
       }
+
+      // Extract user object
+      Map<dynamic, dynamic> userData =
+          userSnapshot.value as Map<dynamic, dynamic>;
+      String userKey =
+          userData.keys.first; // Assuming a single user is returned
+      DatabaseReference userRef = _userRef.child(userKey);
+
+      // Step 2: Find the friend's data by `friendUid`
+      Query friendQuery = _userRef.orderByChild('userId').equalTo(friendUid);
+      DatabaseEvent friendEvent = await friendQuery.once();
+      DataSnapshot friendSnapshot = friendEvent.snapshot;
+
+      if (!friendSnapshot.exists) {
+        print('Friend not found with friendUid: $friendUid');
+        return;
+      }
+
+      // Extract friend data
+      Map<dynamic, dynamic> friendData =
+          friendSnapshot.value as Map<dynamic, dynamic>;
+      Map<dynamic, dynamic> friendObject = friendData.values.first;
+
+      // Step 3: Prepare friend object to insert
+      Map<String, dynamic> friendToInsert = {
+        '_id': friendObject['_id'] ?? '',
+        'lastMessage': '',
+        'lastMessageTime': '',
+        'photoUrl': friendObject['photoUrl'] ?? '',
+        'status': 'friend',
+        'userId': friendObject['userId'] ?? '',
+        'username': friendObject['username'] ?? '',
+      };
+
+      // Step 4: Insert friend into user's friends list
+      DatabaseReference friendsRef = userRef.child('friends');
+      DatabaseReference newFriendRef = friendsRef.push(); // Generate new key
+      await newFriendRef.set(friendToInsert);
+
+      print('Friend added successfully!');
     } catch (error) {
       print('Error adding friend: $error');
     }

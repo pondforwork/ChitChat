@@ -25,7 +25,31 @@ class _AllChatViewState extends State<AllChatView> {
                     "HQkGkOzTDiX0WglqaysNzcgr1O33",
                     "LlpNuYauPAhoyCqreYF6PBQhenD2");
               },
-              child: Icon(Icons.add))
+              child: Text("Start Chat Mock")),
+          ElevatedButton(
+              onPressed: () {
+                //Mockup Function
+
+                chatDbController.sendMessage(
+                    chatId: "-OC2H9mxZtxOEBBqP3Ec",
+                    senderId: "HQkGkOzTDiX0WglqaysNzcgr1O33",
+                    text: "สวัสดีย์");
+              },
+              child: Text("Send Message Mock")),
+          ElevatedButton(
+              onPressed: () {
+                //Mockup Function
+
+                chatDbController.watchDatabaseChanges("chats");
+              },
+              child: Text("Listen")),
+          ElevatedButton(
+              onPressed: () {
+                //Mockup Function
+
+                chatDbController.getChatMessages("-OC2H9mxZtxOEBBqP3Ec");
+              },
+              child: Text("GetMessagess")),
         ],
       ),
     );

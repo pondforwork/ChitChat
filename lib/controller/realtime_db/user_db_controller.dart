@@ -220,7 +220,6 @@ class UserDbController extends GetxController {
   //     print('Error adding friend: $error');
   //   }
   // }
-
   void addFriend(String userUid, String friendUid) async {
     try {
       // Step 1: Find the user object by `userUid`
@@ -257,7 +256,22 @@ class UserDbController extends GetxController {
           friendData.keys.first; // Assuming a single friend is returned
       Map<dynamic, dynamic> friendObject = friendData[friendKey];
 
-      // Step 3: Prepare user and friend objects to insert into each other's lists
+      // Step 3: Check if friend already exists in user's friends list
+      DatabaseReference userFriendsRef = _userRef.child('$userKey/friends');
+      DatabaseEvent userFriendsEvent = await userFriendsRef.once();
+      DataSnapshot userFriendsSnapshot = userFriendsEvent.snapshot;
+
+      if (userFriendsSnapshot.exists) {
+        Map<dynamic, dynamic> userFriends =
+            userFriendsSnapshot.value as Map<dynamic, dynamic>;
+
+        if (userFriends.containsKey(friendObject['_id'])) {
+          print('Friend already exists in user\'s friends list.');
+          return;
+        }
+      }
+
+      // Step 4: Prepare user and friend objects to insert into each other's lists
       Map<String, dynamic> userToInsert = {
         '_id': userObject['_id'] ?? '',
         'lastMessage': '',
@@ -278,15 +292,12 @@ class UserDbController extends GetxController {
         'username': friendObject['username'] ?? '',
       };
 
-      // Step 4: Insert friend into user's friends list using `_id` as the key
-      DatabaseReference userFriendsRef =
-          _userRef.child('$userKey/friends/${friendObject['_id']}');
-      await userFriendsRef.set(friendToInsert);
+      // Step 5: Insert friend into user's friends list using `_id` as the key
+      await userFriendsRef.child(friendObject['_id']).set(friendToInsert);
 
-      // Step 5: Insert user into friend's friends list using `_id` as the key
-      DatabaseReference friendFriendsRef =
-          _userRef.child('$friendKey/friends/${userObject['_id']}');
-      await friendFriendsRef.set(userToInsert);
+      // Step 6: Insert user into friend's friends list using `_id` as the key
+      DatabaseReference friendFriendsRef = _userRef.child('$friendKey/friends');
+      await friendFriendsRef.child(userObject['_id']).set(userToInsert);
 
       print('Friends added successfully with custom keys!');
     } catch (error) {

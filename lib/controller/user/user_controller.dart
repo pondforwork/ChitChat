@@ -34,14 +34,12 @@ class UserController extends GetxController {
     String? userIdString = await _userBox.get("userId");
     String? usernameString = await _userBox.get("username");
     String? photoURLString = await _userBox.get("photoURL");
-    print(photoURLString);
-    // If userId is retrieved, update the RxString values.
+    print("UserUid");
+    print(userIdString);
+
     if (userIdString != null &&
         usernameString != null &&
         photoURLString != null) {
-      print("UserId not null");
-      print(userUid.value);
-      print(userIdString);
       userUid.value = userIdString;
       userName.value = usernameString;
       photoUrl.value = photoURLString;
@@ -104,5 +102,10 @@ class UserController extends GetxController {
       print("Error signing in with Google: $error");
       return null;
     }
+  }
+
+  String getUserUid() {
+    getUser();
+    return userUid.value;
   }
 }

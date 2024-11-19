@@ -1,6 +1,7 @@
 import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
+import 'package:chit_chat/model/user.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -48,7 +49,7 @@ class _FriendListViewState extends State<FriendListView> {
               onTap: () {
                 // Handle friend selection or messaging
                 chatDbController.startPrivateChat(
-                    userController.userUid.value, friend.id);
+                    userController.getUserUid(), friend.id);
                 print("Tapped on: ${friend.username}");
               },
             );

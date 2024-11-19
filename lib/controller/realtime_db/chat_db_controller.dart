@@ -160,6 +160,8 @@ class ChatDbController extends GetxController {
           );
         }).toList();
 
+        messages.sort((b, a) => b.timeStamp.compareTo(a.timeStamp));
+
         messageList.assignAll(messages);
 
         // Messages คือที่ได้รับมา

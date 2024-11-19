@@ -31,9 +31,9 @@ class _AllChatViewState extends State<AllChatView> {
                 //Mockup Function
 
                 chatDbController.sendMessage(
-                    chatId: "-OC2cc_e2SVC_l439syH",
+                    chatId: "-OC2gR-gr2D0uUXAe1Vv",
                     senderId: "LlpNuYauPAhoyCqreYF6PBQhenD2",
-                    text: "สวัสดีย์");
+                    text: "สวัสดีครับ บิ๊กพิม");
               },
               child: Text("Send Message Mock")),
           ElevatedButton(

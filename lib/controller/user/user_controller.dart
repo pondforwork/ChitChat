@@ -77,6 +77,7 @@ class UserController extends GetxController {
       // ถ้าได้ firebase user
       if (firebaseUser != null) {
         String uid = firebaseUser.uid;
+        print(uid);
         if (await realtimeDbController.checkUserExists(uid)) {
           Get.to(HomeView());
         } else {

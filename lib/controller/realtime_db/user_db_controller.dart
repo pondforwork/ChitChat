@@ -17,36 +17,46 @@ class UserDbController extends GetxController {
   RxString photoUrl = ''.obs;
 
   // void saveNewUserToFirebase(User? firebaseUser) {
-  //   _userRef.push().set({
-  //     '_id': firebaseUser!.uid,
-  //     'username': firebaseUser.displayName,
-  //     'photoUrl': '',
-  //     'friends': [],
-  //     'chats': [],
-  //     'userId': ''
-  //   }).then((_) {
-  //     print('save user success');
-  //   }).catchError((error) {
-  //     print('Failed to save User');
-  //   });
+  //   try {
+  //     // Generate a new Firebase key
+  //     DatabaseReference newUserRef = _userRef.push();
+  //     String newKey = newUserRef.key!;
+
+  //     // Save user data with the generated key as the _id
+  //     newUserRef.set({
+  //       '_id': newKey, // Use the generated key here
+  //       'username': firebaseUser!.displayName,
+  //       'photoUrl': '',
+  //       'email': firebaseUser.email,
+  //       'friends': [],
+  //       'chats': [],
+  //       'userId': '',
+  //     }).then((_) {
+  //       print('User saved successfully with _id: $newKey');
+  //     }).catchError((error) {
+  //       print('Failed to save User: $error');
+  //     });
+  //   } catch (error) {
+  //     print('Error saving user: $error');
+  //   }
   // }
 
   void saveNewUserToFirebase(User? firebaseUser) {
     try {
-      // Generate a new Firebase key
-      DatabaseReference newUserRef = _userRef.push();
-      String newKey = newUserRef.key!;
+      // Use the provided custom ID as the Firebase key
+      DatabaseReference newUserRef = _userRef.child(firebaseUser!.uid);
 
-      // Save user data with the generated key as the _id
+      // Save user data with the provided custom ID as the _id
       newUserRef.set({
-        '_id': newKey, // Use the generated key here
-        'username': firebaseUser!.displayName,
-        'photoUrl': '',
+        '_id': firebaseUser.uid, // Use the custom ID here
+        'username': firebaseUser.displayName ?? '',
+        'photoUrl': firebaseUser.photoURL ?? '',
+        'email': firebaseUser.email ?? '',
         'friends': [],
         'chats': [],
         'userId': '',
       }).then((_) {
-        print('User saved successfully with _id: $newKey');
+        print('User saved successfully with _id: ${firebaseUser.uid}');
       }).catchError((error) {
         print('Failed to save User: $error');
       });
@@ -55,8 +65,8 @@ class UserDbController extends GetxController {
     }
   }
 
-  Future<bool> checkUserExistInDb(String userId) async {
-    final snapshot = await _userRef.child('users/$userId').get();
+  Future<bool> checkUserExistInDb(String uid) async {
+    final snapshot = await _userRef.child('users/$uid').get();
     if (snapshot.exists) {
       print(snapshot.value);
       return true;

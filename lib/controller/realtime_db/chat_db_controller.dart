@@ -1,32 +1,20 @@
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
+import 'package:chit_chat/model/user.dart';
+import 'package:chit_chat/view/chat/chat_view.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:get/get.dart';
 
 import '../../view_model/current_chat.dart';
 
-class ChatDbController {
-  // void startPrivateChat(String myUid, String friendUid) {
-  //   //Check myuid and friend uid is in some chat and list length must = 2 because i try
-  //   //to start privatechat
-  //   // if not found create new chat but if found load chat
-  //   // start with find chat
-  //   // in box chats and this is chats architecture
+class ChatDbController extends GetxController {
+  UserDbController userDbController = Get.put(UserDbController());
+  RxString currentChatDuoName = ''.obs;
+  RxString currentChatId = ''.obs;
 
-  //   //   "_id": "chatId1",
-  //   // "type": "private", // or "group"
-  //   // "participants": ["userId1", "userId2"],
-  //   // "messages": [
-  //   //   {
-  //   //     "senderId": "userId1",
-  //   //     "text": "Hello!",
-  //   //     "timestamp": "2023-10-01T12:00:00Z"
-  //   //   },
-  //   //   {
-  //   //     "senderId": "userId2",
-  //   //     "text": "Hi there!",
-  //   //     "timestamp": "2023-10-01T12:01:00Z"
-  //   //   }
-  //   // ]
-  //   //}
-  // }
+  void setCurrentChat(String duoName, String chatId) {
+    currentChatDuoName.value = duoName;
+    currentChatId.value = chatId;
+  }
 
   Future<void> startPrivateChat(String myUid, String friendUid) async {
     final databaseRef =
@@ -55,12 +43,19 @@ class ChatDbController {
 
       // ถ้ามีแชทอยู่แล้ว ให้ดึงข้อมูล และไปที่หน้าแชท
       if (existingChatId != null) {
-        // Chat exists, load chat
+        currentChatId.value = existingChatId.toString();
         print("Chat found with ID: $existingChatId");
+        print("Current Chat Id");
+        print(existingChatId);
+
+        // Get Duo User Data
+        UserInstance? user = await userDbController.getUser(friendUid);
+
+        setCurrentChat(user!.username, existingChatId!);
+        Get.to(ChatView());
         return;
       }
     }
-
     // ถ้าไม่มีแชท ให้สร้่างใหม่
     createNewPrivateChat(myUid, friendUid);
   }

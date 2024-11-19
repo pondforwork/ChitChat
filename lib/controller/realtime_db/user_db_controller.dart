@@ -302,4 +302,63 @@ class UserDbController extends GetxController {
       print('Error fetching friends list: $error');
     }
   }
+
+  Future<UserInstance?> getUser(String userUid) async {
+    try {
+      // Query Firebase for the user with the provided UID
+      Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
+      DatabaseEvent event = await userQuery.once();
+      DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        // Parse snapshot into user data
+        final userData = snapshot.value as Map<dynamic, dynamic>;
+        final firstEntry =
+            userData.entries.first; // Assuming first entry is the user
+        final userMap = Map<String, dynamic>.from(firstEntry.value);
+
+        // Parse friends data into a List<String>
+        final friendsData = userMap['friends'] as Map<dynamic, dynamic>? ?? {};
+        final friendsList = friendsData.entries
+            .map((entry) {
+              final friendMap = Map<String, dynamic>.from(entry.value);
+              return friendMap['username'] ?? ''; // Extract friend's username
+            })
+            .toList()
+            .cast<String>();
+
+        // Create a UserInstance object
+        UserInstance user = UserInstance(
+          id: userMap['_id'] ?? '',
+          username: userMap['username'] ?? '',
+          friends: friendsList, // Assign as List<String>
+          chats: userMap['chats'] != null
+              ? (userMap['chats'] as Map<dynamic, dynamic>)
+                  .keys
+                  .map((key) => key.toString())
+                  .toList()
+              : [],
+          email: userMap['email'] ?? '',
+          userId: userMap['userId'] ?? '',
+          photoUrl: userMap['photoUrl'],
+        );
+
+        // Update state variables
+        userName.value = user.username;
+        this.friendUserId.value = user.userId;
+        friendUid.value = user.id;
+        userFound.value = true;
+        photoUrl.value = user.photoUrl ?? '';
+
+        // Return the user instance
+        return user;
+      } else {
+        print("No user found with userUid: $userUid");
+        return null;
+      }
+    } catch (e) {
+      print("Error finding user by ID: $e");
+      return null;
+    }
+  }
 }

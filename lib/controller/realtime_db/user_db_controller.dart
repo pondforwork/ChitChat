@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 
 import '../../model/user.dart';
 
-class RealtimeDbController extends GetxController {
+class UserDbController extends GetxController {
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
 
@@ -146,24 +146,48 @@ class RealtimeDbController extends GetxController {
     }
   }
 
-  void getFriendsList(String myUserId) async {
+  Future<List<UserInstance>> getFriendsList() async {
     try {
+      String myUserId = 'LlpNuYauPAhoyCqreYF6PBQhenD2';
+
+      // Query to find the user by userId
       Query userQuery = _userRef.orderByChild('_id').equalTo(myUserId);
       DatabaseEvent event = await userQuery.once();
       DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists) {
-        String userKey = (snapshot.value as Map).keys.first;
-        List<dynamic> friends =
-            (snapshot.value as Map)[userKey]['friends'] ?? [];
-        print("Friends List: $friends");
-        List<String> friendIds = List<String>.from(friends);
-        print("Friend IDs: $friendIds");
+        // Extract the user key and fetch the friends list
+        Map<String, dynamic> userMap =
+            Map<String, dynamic>.from(snapshot.value as Map);
+        String userKey = userMap.keys.first;
+        List<dynamic> friendIds = userMap[userKey]['friends'] ?? [];
+
+        // Fetch friend details based on friendIds
+        List<UserInstance> friends = [];
+        for (String friendId in friendIds.cast<String>()) {
+          Query friendQuery = _userRef.orderByChild('_id').equalTo(friendId);
+          DatabaseEvent friendEvent = await friendQuery.once();
+          DataSnapshot friendSnapshot = friendEvent.snapshot;
+
+          if (friendSnapshot.exists) {
+            // Assuming each friend entry has a single user object
+            Map<String, dynamic> friendMap =
+                Map<String, dynamic>.from(friendSnapshot.value as Map);
+            String friendKey = friendMap.keys.first;
+            Map<String, dynamic> friendData =
+                Map<String, dynamic>.from(friendMap[friendKey]);
+            friends.add(UserInstance.fromMap(friendData));
+          }
+        }
+        print(friends);
+        return friends;
       } else {
-        print("User with _id: $myUserId not found.");
+        print('User with userId "$myUserId" not found.');
+        return [];
       }
     } catch (error) {
-      print("Error retrieving friends list: $error");
+      print('Error fetching friends list: $error');
+      return [];
     }
   }
 }

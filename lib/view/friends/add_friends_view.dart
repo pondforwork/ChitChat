@@ -21,7 +21,7 @@ class _AddFriendsViewState extends State<AddFriendsView> {
   }
 
   final TextEditingController _friendIdController = TextEditingController();
-  RealtimeDbController userDbController = Get.put(RealtimeDbController());
+  UserDbController userDbController = Get.put(UserDbController());
   UserController userController = Get.put(UserController());
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 

@@ -7,7 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class LoginView extends StatelessWidget {
   UserController userController = Get.put(UserController());
-  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
+  UserDbController realtimeDbController = Get.put(UserDbController());
   ChatDbController chatDbController = ChatDbController();
   LoginView({super.key});
 

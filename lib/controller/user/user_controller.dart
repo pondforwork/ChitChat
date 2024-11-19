@@ -7,11 +7,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class UserController extends GetxController {
-  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
+  UserDbController realtimeDbController = Get.put(UserDbController());
 
   late Box _userBox;
   RxString userName = ''.obs;
-  RxString userId = ''.obs;
+
+  RxString userUid = ''.obs;
   @override
   Future<void> onInit() async {
     await Hive.initFlutter();
@@ -31,15 +32,15 @@ class UserController extends GetxController {
     // If userId is retrieved, update the RxString values.
     if (userIdString != null && usernameString != null) {
       print("UserId not null");
-      print(userId.value);
+      print(userUid.value);
       print(userIdString);
-      userId.value = userIdString;
+      userUid.value = userIdString;
       userName.value = usernameString;
     } else {
       print("User is Empty");
     }
     // Return the LocalUser object after updating values
-    LocalUser user = LocalUser(userId: userId.value, username: usernameString);
+    LocalUser user = LocalUser(userId: userUid.value, username: usernameString);
     return user;
   }
 

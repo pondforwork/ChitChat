@@ -14,7 +14,7 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   UserController userController = Get.put(UserController());
-  RealtimeDbController realtimeDbController = Get.put(RealtimeDbController());
+  UserDbController realtimeDbController = Get.put(UserDbController());
 
   // To track the selected tab
   int _selectedIndex = 0;
@@ -66,12 +66,6 @@ class _HomeViewState extends State<HomeView> {
       body: IndexedStack(
         index: _selectedIndex, // Display the selected page from the _pages list
         children: _pages, // All pages are kept alive in the background
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          realtimeDbController.getFriendsList(userController.userId.value);
-        },
-        child: const Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex, // Current selected tab index

@@ -51,6 +51,7 @@ class ChatDbController {
         }
       });
 
+      // ถ้ามีแชทอยู่แล้ว ให้ดึงข้อมูล และไปที่หน้าแชท
       if (existingChatId != null) {
         // Chat exists, load chat
         print("Chat found with ID: $existingChatId");
@@ -58,19 +59,23 @@ class ChatDbController {
       }
     }
 
-    // Step 2: If no chat exists, create a new private chat
-    print("No existing chat found. Creating a new private chat...");
+    // ถ้าไม่มีแชท ให้สร้่างใหม่
+    createNewPrivateChat(myUid, friendUid);
+  }
+
+  Future<void> createNewPrivateChat(String myUid, String friendUid) async {
+    final databaseRef = FirebaseDatabase.instance.ref();
+    final chatsRef = databaseRef.child("chats");
+
     String newChatId = chatsRef.push().key ??
         "new_chat_${DateTime.now().millisecondsSinceEpoch}";
 
-    // Create chat data
     Map<String, dynamic> newChatData = {
       "type": "private",
       "participants": [myUid, friendUid],
       "messages": [],
     };
 
-    // Save to Firebase
     await chatsRef.child(newChatId).set(newChatData);
 
     print("New private chat created with ID: $newChatId");

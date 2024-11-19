@@ -1,3 +1,4 @@
+import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class FriendListView extends StatefulWidget {
 class _FriendListViewState extends State<FriendListView> {
   UserController userController = UserController();
   UserDbController userDbController = Get.put(UserDbController());
+  ChatDbController chatDbController = Get.put(ChatDbController());
 
   @override
   void initState() {
@@ -45,6 +47,8 @@ class _FriendListViewState extends State<FriendListView> {
               trailing: const Icon(Icons.message),
               onTap: () {
                 // Handle friend selection or messaging
+                chatDbController.startPrivateChat(
+                    userController.userUid.value, friend.id);
                 print("Tapped on: ${friend.username}");
               },
             );

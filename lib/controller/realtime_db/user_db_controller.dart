@@ -17,15 +17,7 @@ class UserDbController extends GetxController {
   RxString friendUid = ''.obs;
   RxString photoUrl = ''.obs;
   // RxList friendListObx = <Friend>[].obs;
-  RxList<Friend> friendListObx = [
-    Friend(
-        id: "asdf",
-        username: "John Doe",
-        email: "john.doe@example.com",
-        photoURL: '',
-        status: '',
-        userId: ''),
-  ].obs;
+  RxList<Friend> friendListObx = <Friend>[].obs;
 
   void saveNewUserToFirebase(User? firebaseUser) {
     try {

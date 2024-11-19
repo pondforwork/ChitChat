@@ -15,8 +15,8 @@ class UserController extends GetxController {
   RxString userUid = ''.obs;
   @override
   Future<void> onInit() async {
-    await Hive.initFlutter();
-    _userBox = await Hive.openBox("user");
+    // await Hive.initFlutter();
+    // _userBox = await Hive.openBox("user");
     super.onInit();
   }
 
@@ -27,6 +27,8 @@ class UserController extends GetxController {
   }
 
   Future<LocalUser> getUser() async {
+    await Hive.initFlutter();
+    _userBox = await Hive.openBox("user");
     String? userIdString = await _userBox.get("userId");
     String? usernameString = await _userBox.get("username");
     // If userId is retrieved, update the RxString values.

@@ -24,6 +24,6 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(home: LoginView());
+    return GetMaterialApp(home: HomeView());
   }
 }

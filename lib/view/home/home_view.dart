@@ -43,7 +43,24 @@ class _HomeViewState extends State<HomeView> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: const Color(0xFFFFDDAE),
-          leading: const Icon(Icons.image),
+          leading: Obx(() {
+            return Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      userDbController.photoUrl.value.isNotEmpty
+                          ? userDbController.photoUrl.value
+                          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUwCJYSnbBLMEGWKfSnWRGC_34iCCKkxePpg&s', // Fallback image
+                    ),
+                    fit: BoxFit.cover, // Ensures image covers the whole circle
+                  ),
+                ),
+              ),
+            );
+          }),
           title: Obx(() {
             return Text(
               userController.userName.value,

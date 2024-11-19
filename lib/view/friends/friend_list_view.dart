@@ -23,13 +23,9 @@ class _FriendListViewState extends State<FriendListView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Friend List"),
-      ),
       body: Obx(() {
-        // Observe the friend list
         if (userDbController.friendListObx.isEmpty) {
-          return const Center(child: Text("No friends found."));
+          return const Center(child: Text("ไม่พบเพื่อนของคุณ"));
         }
 
         return ListView.builder(

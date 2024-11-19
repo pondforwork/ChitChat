@@ -1,5 +1,6 @@
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
+import 'package:chit_chat/view/chat/all_chat_view.dart';
 import 'package:chit_chat/view/friends/add_friends_view.dart';
 import 'package:chit_chat/view/friends/friend_list_view.dart';
 import 'package:flutter/material.dart';
@@ -116,9 +117,7 @@ class _HomeViewState extends State<HomeView> {
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Home Screen'),
-    );
+    return AllChatView();
   }
 }
 

@@ -4,6 +4,7 @@ import 'package:chit_chat/model/user.dart';
 import 'package:chit_chat/view/chat/chat_view.dart';
 import 'package:chit_chat/model/messages.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../model/friends.dart';
@@ -17,23 +18,24 @@ class ChatDbController extends GetxController {
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
 
-  // RxList<Messages> messageList = <Messages>[
-  //   Messages(
-  //     senderId: 'user1',
-  //     text: 'Hello, how are you?',
-  //     timeStamp: DateTime.now().subtract(Duration(minutes: 5)),
-  //   ),
-  //   Messages(
-  //     senderId: 'user2',
-  //     text: 'I\'m doing well, thanks! How about you?',
-  //     timeStamp: DateTime.now().subtract(Duration(minutes: 3)),
-  //   ),
-  //   Messages(
-  //     senderId: 'user1',
-  //     text: 'I\'m good too, just a little tired.',
-  //     timeStamp: DateTime.now().subtract(Duration(minutes: 1)),
-  //   ),
-  // ].obs;
+  final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
+  int _num = 1; // Counter for debugging
+  bool _debounce = false; // Debounce flag
+  Map<String, dynamic> _previousValues = {}; // Cache for previous values
+
+  final ScrollController scrollController = ScrollController();
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
 
   void setCurrentChat(String duoName, String chatId) {
     currentChatDuoName.value = duoName;
@@ -133,23 +135,35 @@ class ChatDbController extends GetxController {
 
   // รอฟังการเปลี่ยนแปลงจาก Chat ปัจจุบัน
   void watchDatabaseChanges(String path) {
-    final databaseRef = FirebaseDatabase.instance.ref(path);
-    databaseRef.onChildChanged.listen((event) {
+    final DatabaseReference databaseRef = _databaseRef.child(path);
+
+    // Listener for changes to child nodes
+    databaseRef.onChildChanged.listen((event) async {
       if (event.snapshot.exists) {
         final String changedChildId = event.snapshot.key ?? "Unknown ID";
-        // print("Value changed for child ID: $changedChildId");
-        // ถ้า Child id = currentchat
-        if (changedChildId == currentChatId.value) {
-          // print("In current Chat");
-          getNewChatMessage(changedChildId);
-          // ให้รับข้อความใหม่เข้ามาใส่ใน List
-        }
-        // else {
-        //   print("Not in Current Chat");
-        // }
 
-        // print("CurrentChatId");
-        // print(currentChatId.value);
+        // Check if the change is for the current chat ID
+        if (changedChildId == currentChatId.value) {
+          // Debounce to prevent multiple triggers for the same event
+          if (_debounce) return;
+          _debounce = true;
+          Future.delayed(Duration(milliseconds: 300), () => _debounce = false);
+
+          // Compare previous and current values
+          final currentValue = event.snapshot.value;
+          if (currentValue != _previousValues[changedChildId]) {
+            _previousValues[changedChildId] = currentValue; // Update cache
+            print("Value changed for current chat ID: $changedChildId");
+            print("Change detected: $_num");
+            _num += 1;
+
+            // Call function to handle the new message
+            await getNewChatMessage(changedChildId);
+            _scrollToBottom();
+          }
+        } else {
+          print("Change detected for a different chat ID: $changedChildId");
+        }
       } else {
         print("Child data not found at $path");
       }
@@ -157,6 +171,35 @@ class ChatDbController extends GetxController {
       print("Error watching database: $error");
     });
   }
+
+  // void watchDatabaseChanges(String path) {
+  //   int num = 1;
+  //   final databaseRef = FirebaseDatabase.instance.ref(path);
+  //   databaseRef.onChildChanged.listen((event) {
+  //     if (event.snapshot.exists) {
+  //       final String changedChildId = event.snapshot.key ?? "Unknown ID";
+  //       // print("Value changed for child ID: $changedChildId");
+  //       // ถ้า Child id = currentchat
+  //       if (changedChildId == currentChatId.value) {
+  //         print(num);
+  //         num += 1;
+  //         // print("In current Chat");
+  //         // getNewChatMessage(changedChildId);
+  //         // ให้รับข้อความใหม่เข้ามาใส่ใน List
+  //       }
+  //       // else {
+  //       //   print("Not in Current Chat");
+  //       // }
+
+  //       // print("CurrentChatId");
+  //       // print(currentChatId.value);
+  //     } else {
+  //       print("Child data not found at $path");
+  //     }
+  //   }, onError: (error) {
+  //     print("Error watching database: $error");
+  //   });
+  // }
 
   Future<void> getChatMessages(String chatId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();

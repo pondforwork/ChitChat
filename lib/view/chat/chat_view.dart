@@ -16,21 +16,11 @@ class _ChatViewState extends State<ChatView> {
   ChatDbController chatDbController = Get.put(ChatDbController());
   UserController userController = Get.put(UserController());
   TextEditingController messageController = TextEditingController();
-  final ScrollController _scrollController =
-      ScrollController(); // Scroll controller
 
   @override
   void initState() {
     super.initState();
     chatDbController.watchDatabaseChanges("chats");
-
-    _scrollToBottom();
-  }
-
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-    }
   }
 
   @override
@@ -59,6 +49,7 @@ class _ChatViewState extends State<ChatView> {
           Expanded(
             child: Obx(() {
               return ListView.builder(
+                controller: chatDbController.scrollController,
                 itemCount: chatDbController.messageList.length,
                 itemBuilder: (context, index) {
                   final message = chatDbController.messageList[index];
@@ -137,8 +128,8 @@ class _ChatViewState extends State<ChatView> {
                 // Send Button
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.blue),
-                  onPressed: () {
-                    chatDbController.sendMessage(
+                  onPressed: () async {
+                    await chatDbController.sendMessage(
                         chatId: chatDbController.currentChatId.value,
                         senderId: userController.userUid.value,
                         text: messageController.text);

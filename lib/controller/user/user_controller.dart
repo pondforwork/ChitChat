@@ -13,6 +13,8 @@ class UserController extends GetxController {
   RxString userName = ''.obs;
   RxString userUid = ''.obs;
   RxString photoUrl = ''.obs;
+  String defaultPhotoUrl =
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKaiKiPcLJj7ufrj6M2KaPwyCT4lDSFA5oog&s";
   @override
   Future<void> onInit() async {
     await Hive.initFlutter();

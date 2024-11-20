@@ -54,9 +54,9 @@ class _HomeViewState extends State<HomeView> {
                     image: NetworkImage(
                       userController.photoUrl.value.isNotEmpty
                           ? userController.photoUrl.value
-                          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUwCJYSnbBLMEGWKfSnWRGC_34iCCKkxePpg&s', // Fallback image
+                          : userController.defaultPhotoUrl,
                     ),
-                    fit: BoxFit.cover, // Ensures image covers the whole circle
+                    fit: BoxFit.cover,
                   ),
                 ),
               ),
@@ -82,13 +82,12 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
         body: IndexedStack(
-          index:
-              _selectedIndex, // Display the selected page from the _pages list
-          children: _pages, // All pages are kept alive in the background
+          index: _selectedIndex,
+          children: _pages,
         ),
         bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex, // Current selected tab index
-          onTap: _onItemTapped, // Handle tab selection
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
           items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
@@ -113,7 +112,6 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-// Sample Pages (Replace these with your actual page widgets)
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

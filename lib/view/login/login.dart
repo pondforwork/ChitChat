@@ -16,8 +16,12 @@ class LoginView extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Container(
-            height: 300,
+          const SizedBox(
+            height: 100,
+          ),
+          Image.asset('assets/images/logo_nobg.png'),
+          const SizedBox(
+            height: 160,
           ),
           Center(
             child: Center(
@@ -56,11 +60,6 @@ class LoginView extends StatelessWidget {
           )
         ],
       ),
-      floatingActionButton: FloatingActionButton(onPressed: (() {
-        // realtimeDbController.getAllUsers();
-        // realtimeDbController.checkUserExists('LlpNuYsfdauPAhoyCqreYF6PBQhenD2');
-        // chatDbController.saveMockMessage();
-      })),
     );
   }
 }

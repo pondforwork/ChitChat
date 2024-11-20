@@ -15,6 +15,7 @@ class ChatDbController extends GetxController {
   RxString currentChatDuoName = ''.obs;
   RxString currentChatId = ''.obs;
   RxList messageList = <Messages>[].obs;
+  RxBool isLoadingChat = false.obs;
   final DatabaseReference _userRef =
       FirebaseDatabase.instance.ref().child('users');
 
@@ -351,7 +352,12 @@ class ChatDbController extends GetxController {
   }
 
   Future<void> getFriendsList() async {
+    isLoadingChat.value = true;
     try {
+      // add time delay
+
+      await Future.delayed(const Duration(seconds: 2));
+
       await userController.getUser();
 
       String userUid = userController.userUid.value;
@@ -413,6 +419,7 @@ class ChatDbController extends GetxController {
     } catch (error) {
       print('Error fetching friends list: $error');
     }
+    isLoadingChat.value = false;
   }
 
   Future<String> getLastMessage(String chatId) async {

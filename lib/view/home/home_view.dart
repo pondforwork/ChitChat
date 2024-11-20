@@ -44,94 +44,95 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFFFFDDAE),
-          leading: Obx(() {
-            return Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      userController.photoUrl.value.isNotEmpty
-                          ? userController.photoUrl.value
-                          : userController.defaultPhotoUrl,
-                    ),
-                    fit: BoxFit.cover,
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFFDDAE),
+        leading: Obx(() {
+          return Padding(
+            padding: const EdgeInsets.all(5.0),
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: NetworkImage(
+                    userController.photoUrl.value.isNotEmpty
+                        ? userController.photoUrl.value
+                        : userController.defaultPhotoUrl,
                   ),
+                  fit: BoxFit.cover,
                 ),
               ),
-            );
-          }),
-          title: Obx(() {
-            return Text(
-              userController.userName.value,
-              style: GoogleFonts.kanit(
-                fontWeight: FontWeight.bold,
-              ),
-            );
-          }),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () {
-                print("Add Friend");
-                Get.to(AddFriendsView());
+            ),
+          );
+        }),
+        title: Obx(() {
+          return Text(
+            userController.userName.value,
+            style: GoogleFonts.kanit(
+              fontWeight: FontWeight.bold,
+            ),
+          );
+        }),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () {
+              print("Add Friend");
+              Get.to(AddFriendsView());
+            },
+            icon: const Icon(Icons.person_add),
+          ),
+        ],
+      ),
+      drawer: Drawer(
+          backgroundColor: const Color(0xFFFFDDAE),
+          // Sidebar Drawer
+          child: ListView(padding: EdgeInsets.zero, children: [
+            const SizedBox(
+              height: 50,
+            ),
+            ListTile(
+              title: const Text('บัญชีของฉัน'),
+              leading: const Icon(Icons.account_box),
+              onTap: () {
+                Get.to(AccountView());
               },
-              icon: const Icon(Icons.person_add),
             ),
-          ],
-        ),
-        drawer: Drawer(
-            backgroundColor: const Color(0xFFFFDDAE),
-            // Sidebar Drawer
-            child: ListView(padding: EdgeInsets.zero, children: [
-              const SizedBox(
-                height: 50,
-              ),
-              ListTile(
-                title: const Text('บัญชีของฉัน'),
-                leading: const Icon(Icons.account_box),
-                onTap: () {
-                  Get.to(AccountView());
-                },
-              ),
-              const Divider(
-                color: Colors.white,
-              ),
-              ListTile(
-                title: const Text('ออกจากระบบ'),
-                leading: const Icon(Icons.logout),
-                onTap: () {
-                  print("Logout");
-                },
-              ),
-            ])),
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _pages,
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+            const Divider(
+              color: Colors.white,
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: 'Chats',
+            ListTile(
+              title: const Text('ออกจากระบบ'),
+              leading: const Icon(Icons.logout),
+              onTap: () {
+                print("Logout");
+              },
             ),
-          ],
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: (() {
-            chatDbController.getFriendsList();
-          }),
-          child: Icon(Icons.refresh),
-        ));
+          ])),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _pages,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chats',
+          ),
+        ],
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: (() {
+      //     chatDbController.getFriendsList();
+      //   }),
+      //   child: Icon(Icons.refresh),
+      // )
+    );
   }
 }
 

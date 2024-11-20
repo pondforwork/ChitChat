@@ -2,8 +2,10 @@ import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:chit_chat/model/user.dart';
+import 'package:chit_chat/widget/text_placeholder.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class FriendListView extends StatefulWidget {
   const FriendListView({super.key});
@@ -21,6 +23,7 @@ class _FriendListViewState extends State<FriendListView> {
   void initState() {
     super.initState();
     // Fetch the initial friend list when the widget is first created
+    userController.getUser();
     chatDbController.getFriendsList();
   }
 
@@ -37,6 +40,14 @@ class _FriendListViewState extends State<FriendListView> {
         // If no friends are found, display a message
         if (userDbController.friendListObx.isEmpty) {
           return const Center(child: Text("ไม่พบเพื่อนของคุณ"));
+        } else if (chatDbController.isLoadingChat.value) {
+          return const Column(
+            children: [
+              TextPlaceholder(),
+              TextPlaceholder(),
+              TextPlaceholder(),
+            ],
+          );
         }
 
         // Wrap ListView.builder with RefreshIndicator to enable pull-to-refresh
@@ -47,21 +58,25 @@ class _FriendListViewState extends State<FriendListView> {
             itemCount: userDbController.friendListObx.length,
             itemBuilder: (context, index) {
               final friend = userDbController.friendListObx[index];
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundImage: friend.photoURL != null
-                      ? NetworkImage(friend.photoURL!)
-                      : null,
-                  child:
-                      friend.photoURL == null ? const Icon(Icons.person) : null,
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: friend.photoURL != null
+                        ? NetworkImage(friend.photoURL!)
+                        : null,
+                    child: friend.photoURL == null
+                        ? const Icon(Icons.person)
+                        : null,
+                  ),
+                  title: Text(friend.username ?? "Unknown"),
+                  subtitle: Text(friend.lastMessage ?? "Unknown"),
+                  onTap: () {
+                    // Handle friend selection or messaging
+                    chatDbController.startPrivateChat(
+                        userController.getUserUid(), friend.id);
+                  },
                 ),
-                title: Text(friend.username ?? "Unknown"),
-                subtitle: Text(friend.lastMessage ?? "Unknown"),
-                onTap: () {
-                  // Handle friend selection or messaging
-                  chatDbController.startPrivateChat(
-                      userController.getUserUid(), friend.id);
-                },
               );
             },
           ),

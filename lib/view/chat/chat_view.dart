@@ -1,4 +1,5 @@
 import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
+import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,6 +16,7 @@ class _ChatViewState extends State<ChatView> {
   // Controller instances
   ChatDbController chatDbController = Get.put(ChatDbController());
   UserController userController = Get.put(UserController());
+  UserDbController userDbController = Get.put(UserDbController());
   TextEditingController messageController = TextEditingController();
 
   @override

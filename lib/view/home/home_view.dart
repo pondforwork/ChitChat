@@ -31,7 +31,7 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    userController.getUser();
+    chatDbController.getFriendsList();
   }
 
   void _onItemTapped(int index) {
@@ -106,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: (() {
-            chatDbController.getFriendsList(userController.userUid.value);
+            chatDbController.getFriendsList();
           }),
           child: Icon(Icons.refresh),
         ));

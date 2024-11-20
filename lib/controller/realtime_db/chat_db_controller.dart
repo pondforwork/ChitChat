@@ -80,6 +80,8 @@ class ChatDbController extends GetxController {
         getChatMessages(existingChatId!);
         setCurrentChat(user!.username, existingChatId!);
         Get.to(ChatView());
+        _scrollToBottom();
+
         return;
       }
     }
@@ -201,14 +203,53 @@ class ChatDbController extends GetxController {
   //   });
   // }
 
+  // Future<void> getChatMessages(String chatId) async {
+  //   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+  //   try {
+  //     DatabaseReference chatRef =
+  //         databaseRef.child("chats").child(chatId).child("messages");
+  //     DataSnapshot snapshot = await chatRef.get();
+  //     if (snapshot.exists) {
+  //       // Parse the data into a list of CurrentChat objects
+  //       final List<Messages> messages = snapshot.children.map((child) {
+  //         final messageData = child.value as Map<dynamic, dynamic>;
+  //         return Messages(
+  //           text: messageData['text'] ?? '',
+  //           senderId: messageData['senderId'] ?? '',
+  //           timeStamp: messageData['timestamp'] != null
+  //               ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
+  //               : DateTime.now(),
+  //         );
+  //       }).toList();
+
+  //       messages.sort((b, a) => b.timeStamp.compareTo(a.timeStamp));
+
+  //       messageList.assignAll(messages);
+
+  //       // Messages คือที่ได้รับมา
+
+  //       print("Fetched ${messages.length} messages for chat ID: $chatId");
+  //       return;
+  //     } else {
+  //       print("No messages found for chat ID: $chatId");
+  //     }
+  //   } catch (e) {
+  //     print("Error fetching messages: $e");
+  //   }
+  // }
+
   Future<void> getChatMessages(String chatId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
     try {
+      // Reference the chat messages and apply the limit
       DatabaseReference chatRef =
           databaseRef.child("chats").child(chatId).child("messages");
-      DataSnapshot snapshot = await chatRef.get();
+
+      Query limitedQuery = chatRef.orderByChild("timestamp").limitToLast(15);
+
+      DataSnapshot snapshot = await limitedQuery.get();
       if (snapshot.exists) {
-        // Parse the data into a list of CurrentChat objects
+        // Parse the data into a list of Messages objects
         final List<Messages> messages = snapshot.children.map((child) {
           final messageData = child.value as Map<dynamic, dynamic>;
           return Messages(
@@ -220,11 +261,11 @@ class ChatDbController extends GetxController {
           );
         }).toList();
 
-        messages.sort((b, a) => b.timeStamp.compareTo(a.timeStamp));
+        // Sort the messages in ascending order by timestamp
+        messages.sort((a, b) => a.timeStamp.compareTo(b.timeStamp));
 
+        // Assign to message list
         messageList.assignAll(messages);
-
-        // Messages คือที่ได้รับมา
 
         print("Fetched ${messages.length} messages for chat ID: $chatId");
         return;
@@ -309,8 +350,12 @@ class ChatDbController extends GetxController {
     return "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')} ${timestamp.hour >= 12 ? 'PM' : 'AM'}";
   }
 
-  Future<void> getFriendsList(String userUid) async {
+  Future<void> getFriendsList() async {
     try {
+      await userController.getUser();
+
+      String userUid = userController.userUid.value;
+
       userDbController.friendListObx.value = [];
       // Step 1: Find the user by userUid
       Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);

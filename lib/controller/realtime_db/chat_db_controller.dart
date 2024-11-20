@@ -1,7 +1,7 @@
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/model/user.dart';
 import 'package:chit_chat/view/chat/chat_view.dart';
-import 'package:chit_chat/view_model/messages.dart';
+import 'package:chit_chat/model/messages.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
 
@@ -40,6 +40,7 @@ class ChatDbController extends GetxController {
 
     // Step 1: Query chats with type 'private'
     DatabaseReference chatsRef = databaseRef.child("chats");
+    // กรองเอาแค่ private ยังไม่ได้ทำ
 
     // Search for an existing private chat
     DataSnapshot snapshot = await chatsRef.get();
@@ -218,5 +219,9 @@ class ChatDbController extends GetxController {
     } catch (e) {
       print("Error fetching latest message: $e");
     }
+  }
+
+  String formatTimestamp(DateTime timestamp) {
+    return "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')} ${timestamp.hour >= 12 ? 'PM' : 'AM'}";
   }
 }

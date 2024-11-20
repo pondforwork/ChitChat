@@ -44,7 +44,6 @@ class _FriendListViewState extends State<FriendListView> {
                     friend.photoURL == null ? const Icon(Icons.person) : null,
               ),
               title: Text(friend.username ?? "Unknown"),
-              subtitle: Text(friend.email ?? "No email provided"),
               trailing: const Icon(Icons.message),
               onTap: () {
                 // Handle friend selection or messaging

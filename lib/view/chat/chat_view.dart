@@ -1,6 +1,5 @@
 import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -76,24 +75,38 @@ class _ChatViewState extends State<ChatView> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 5.0, horizontal: 10.0),
                         decoration: BoxDecoration(
-                          color: message.senderId == 'your_local_user_id'
+                          color: message.senderId ==
+                                  userController.userUid.value
                               ? Colors.blueAccent.withOpacity(0.2)
                               : Colors.grey[
                                   300], // Different background color for your message vs others
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Text(
-                          message.text,
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: message.senderId == 'your_local_user_id'
-                                ? Colors.blue
-                                : Colors.black, // Text color based on sender
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              message.text,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.normal,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(
+                                height:
+                                    5.0), // Spacing between text and timestamp
+                            Text(
+                              chatDbController
+                                  .formatTimestamp(message.timeStamp),
+                              style: TextStyle(
+                                fontSize: 12.0,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    // subtitle: Text("Sent by: ${message.senderId}"),
                   );
                 },
               );
@@ -110,7 +123,7 @@ class _ChatViewState extends State<ChatView> {
                   child: TextField(
                     controller: messageController,
                     decoration: InputDecoration(
-                      hintText: 'Type your message...',
+                      hintText: 'พิมพ์ข้อความ...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30.0),
                         borderSide: BorderSide.none,
@@ -123,10 +136,8 @@ class _ChatViewState extends State<ChatView> {
 
                 // Send Button
                 IconButton(
-                  icon: Icon(Icons.send, color: Colors.blue),
+                  icon: const Icon(Icons.send, color: Colors.blue),
                   onPressed: () {
-                    print("SendMessage");
-
                     chatDbController.sendMessage(
                         chatId: chatDbController.currentChatId.value,
                         senderId: userController.userUid.value,

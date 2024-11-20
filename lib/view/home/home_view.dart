@@ -1,6 +1,7 @@
 import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
+import 'package:chit_chat/view/account/account_view.dart';
 import 'package:chit_chat/view/chat/all_chat_view.dart';
 import 'package:chit_chat/view/friends/add_friends_view.dart';
 import 'package:chit_chat/view/friends/friend_list_view.dart';
@@ -82,6 +83,31 @@ class _HomeViewState extends State<HomeView> {
             ),
           ],
         ),
+        drawer: Drawer(
+            backgroundColor: const Color(0xFFFFDDAE),
+            // Sidebar Drawer
+            child: ListView(padding: EdgeInsets.zero, children: [
+              const SizedBox(
+                height: 50,
+              ),
+              ListTile(
+                title: const Text('บัญชีของฉัน'),
+                leading: const Icon(Icons.account_box),
+                onTap: () {
+                  Get.to(AccountView());
+                },
+              ),
+              const Divider(
+                color: Colors.white,
+              ),
+              ListTile(
+                title: const Text('ออกจากระบบ'),
+                leading: const Icon(Icons.logout),
+                onTap: () {
+                  print("Logout");
+                },
+              ),
+            ])),
         body: IndexedStack(
           index: _selectedIndex,
           children: _pages,
@@ -93,10 +119,6 @@ class _HomeViewState extends State<HomeView> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.group),
-              label: 'Friends',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.chat),

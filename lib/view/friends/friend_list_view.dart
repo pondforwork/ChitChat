@@ -19,40 +19,52 @@ class _FriendListViewState extends State<FriendListView> {
 
   @override
   void initState() {
-    // Fetch friend list on initialization
     super.initState();
+    // Fetch the initial friend list when the widget is first created
+    chatDbController.getFriendsList();
+  }
+
+  // The refresh function to be triggered on pull-to-refresh
+  Future<void> _refreshFriendList() async {
+    // Add the logic to refresh the friend list
+    await chatDbController.getFriendsList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() {
+        // If no friends are found, display a message
         if (userDbController.friendListObx.isEmpty) {
           return const Center(child: Text("ไม่พบเพื่อนของคุณ"));
         }
 
-        return ListView.builder(
-          itemCount: userDbController.friendListObx.length,
-          itemBuilder: (context, index) {
-            final friend = userDbController.friendListObx[index];
-            return ListTile(
-              leading: CircleAvatar(
-                backgroundImage: friend.photoURL != null
-                    ? NetworkImage(friend.photoURL!)
-                    : null,
-                child:
-                    friend.photoURL == null ? const Icon(Icons.person) : null,
-              ),
-              title: Text(friend.username ?? "Unknown"),
-              subtitle: Text(friend.lastMessage ?? "Unknown"),
-              trailing: const Icon(Icons.message),
-              onTap: () {
-                // Handle friend selection or messaging
-                chatDbController.startPrivateChat(
-                    userController.getUserUid(), friend.id);
-              },
-            );
-          },
+        // Wrap ListView.builder with RefreshIndicator to enable pull-to-refresh
+        return RefreshIndicator(
+          onRefresh:
+              _refreshFriendList, // The function that will be called on refresh
+          child: ListView.builder(
+            itemCount: userDbController.friendListObx.length,
+            itemBuilder: (context, index) {
+              final friend = userDbController.friendListObx[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: friend.photoURL != null
+                      ? NetworkImage(friend.photoURL!)
+                      : null,
+                  child:
+                      friend.photoURL == null ? const Icon(Icons.person) : null,
+                ),
+                title: Text(friend.username ?? "Unknown"),
+                subtitle: Text(friend.lastMessage ?? "Unknown"),
+                onTap: () {
+                  // Handle friend selection or messaging
+                  chatDbController.startPrivateChat(
+                      userController.getUserUid(), friend.id);
+                },
+              );
+            },
+          ),
         );
       }),
     );

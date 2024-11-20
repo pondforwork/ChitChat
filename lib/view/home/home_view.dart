@@ -98,8 +98,8 @@ class _HomeViewState extends State<HomeView> {
               label: 'Friends',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
+              icon: Icon(Icons.chat),
+              label: 'Chats',
             ),
           ],
         ),

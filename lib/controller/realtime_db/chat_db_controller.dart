@@ -5,8 +5,6 @@ import 'package:chit_chat/view_model/messages.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
 
-import '../../view_model/current_chat.dart';
-
 class ChatDbController extends GetxController {
   UserDbController userDbController = Get.put(UserDbController());
   RxString currentChatDuoName = ''.obs;
@@ -64,13 +62,13 @@ class ChatDbController extends GetxController {
       // ถ้ามีแชทอยู่แล้ว ให้ดึงข้อมูล และไปที่หน้าแชท
       if (existingChatId != null) {
         currentChatId.value = existingChatId.toString();
-        print("Chat found with ID: $existingChatId");
-        print("Current Chat Id");
-        print(existingChatId);
+        // print("Chat found with ID: $existingChatId");
+        // print("Current Chat Id");
+        // print(existingChatId);
 
         // Get Duo User Data
         UserInstance? user = await userDbController.getUser(friendUid);
-
+        getChatMessages(existingChatId!);
         setCurrentChat(user!.username, existingChatId!);
         Get.to(ChatView());
         return;
@@ -126,15 +124,27 @@ class ChatDbController extends GetxController {
     }
   }
 
+  // รอฟังการเปลี่ยนแปลงจาก Chat ปัจจุบัน
   void watchDatabaseChanges(String path) {
     final databaseRef = FirebaseDatabase.instance.ref(path);
-    databaseRef.onValue.listen((event) {
+    databaseRef.onChildChanged.listen((event) {
       if (event.snapshot.exists) {
-        // print("Data changed at $path: ${event.snapshot.value}");
-        // กรองเอง
-        getChatMessages(currentChatId.value);
+        final String changedChildId = event.snapshot.key ?? "Unknown ID";
+        // print("Value changed for child ID: $changedChildId");
+        // ถ้า Child id = currentchat
+        if (changedChildId == currentChatId.value) {
+          // print("In current Chat");
+          getNewChatMessage(changedChildId);
+          // ให้รับข้อความใหม่เข้ามาใส่ใน List
+        }
+        // else {
+        //   print("Not in Current Chat");
+        // }
+
+        // print("CurrentChatId");
+        // print(currentChatId.value);
       } else {
-        print("No data found at $path");
+        print("Child data not found at $path");
       }
     }, onError: (error) {
       print("Error watching database: $error");
@@ -173,6 +183,40 @@ class ChatDbController extends GetxController {
       }
     } catch (e) {
       print("Error fetching messages: $e");
+    }
+  }
+
+  Future<void> getNewChatMessage(String chatId) async {
+    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+    try {
+      DatabaseReference chatRef =
+          databaseRef.child("chats").child(chatId).child("messages");
+
+      Query latestMessageQuery =
+          chatRef.orderByChild("timestamp").limitToLast(1);
+
+      DataSnapshot snapshot = await latestMessageQuery.get();
+
+      if (snapshot.exists) {
+        // Extract the single message
+        final messageData =
+            snapshot.children.first.value as Map<dynamic, dynamic>;
+
+        final Messages message = Messages(
+          text: messageData['text'] ?? '',
+          senderId: messageData['senderId'] ?? '',
+          timeStamp: messageData['timestamp'] != null
+              ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
+              : DateTime.now(),
+        );
+
+        // Add the message to the list or use it directly
+        messageList.add(message);
+      } else {
+        print("No messages found for chat ID: $chatId");
+      }
+    } catch (e) {
+      print("Error fetching latest message: $e");
     }
   }
 }

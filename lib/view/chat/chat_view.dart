@@ -17,33 +17,28 @@ class _ChatViewState extends State<ChatView> {
   ChatDbController chatDbController = Get.put(ChatDbController());
   UserController userController = Get.put(UserController());
   TextEditingController messageController = TextEditingController();
+  final ScrollController _scrollController =
+      ScrollController(); // Scroll controller
 
   @override
   void initState() {
     super.initState();
-    // Initialize chat by fetching chat data
-    print("CurrentChatId");
-    print(chatDbController.currentChatId);
-
     chatDbController.watchDatabaseChanges("chats");
+
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    }
   }
 
   @override
   void dispose() {
-    // Dispose the controller
     messageController.dispose();
-    print("ChatView disposed.");
     super.dispose();
   }
-
-  // Function to send message
-  // void sendMessage() {
-  //   if (messageController.text.isNotEmpty) {
-  //     chatDbController.sendMessage(messageController
-  //         .text); // Assuming sendMessage is implemented in your controller
-  //     messageController.clear(); // Clear the text field after sending
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {

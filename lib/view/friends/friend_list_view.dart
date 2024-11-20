@@ -50,7 +50,6 @@ class _FriendListViewState extends State<FriendListView> {
                 // Handle friend selection or messaging
                 chatDbController.startPrivateChat(
                     userController.getUserUid(), friend.id);
-                print("Tapped on: ${friend.username}");
               },
             );
           },

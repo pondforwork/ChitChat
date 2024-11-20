@@ -1,3 +1,4 @@
+import 'package:chit_chat/controller/realtime_db/chat_db_controller.dart';
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
 import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:chit_chat/view/chat/all_chat_view.dart';
@@ -16,7 +17,7 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   UserController userController = Get.put(UserController());
   UserDbController userDbController = Get.put(UserDbController());
-
+  ChatDbController chatDbController = Get.put(ChatDbController());
   // To track the selected tab
   int _selectedIndex = 0;
 
@@ -105,7 +106,7 @@ class _HomeViewState extends State<HomeView> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: (() {
-            userDbController.getFriendsList(userController.userUid.value);
+            chatDbController.getFriendsList(userController.userUid.value);
           }),
           child: Icon(Icons.refresh),
         ));

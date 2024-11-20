@@ -1,15 +1,21 @@
 import 'package:chit_chat/controller/realtime_db/user_db_controller.dart';
+import 'package:chit_chat/controller/user/user_controller.dart';
 import 'package:chit_chat/model/user.dart';
 import 'package:chit_chat/view/chat/chat_view.dart';
 import 'package:chit_chat/model/messages.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:get/get.dart';
 
+import '../../model/friends.dart';
+
 class ChatDbController extends GetxController {
   UserDbController userDbController = Get.put(UserDbController());
+  UserController userController = Get.put(UserController());
   RxString currentChatDuoName = ''.obs;
   RxString currentChatId = ''.obs;
   RxList messageList = <Messages>[].obs;
+  final DatabaseReference _userRef =
+      FirebaseDatabase.instance.ref().child('users');
 
   // RxList<Messages> messageList = <Messages>[
   //   Messages(
@@ -221,7 +227,171 @@ class ChatDbController extends GetxController {
     }
   }
 
+  Future<String> getChatId(String friendUid) async {
+    final databaseRef = FirebaseDatabase.instance.ref();
+    String myUid =
+        userController.userUid.value; // Assuming you have the user's UID
+    try {
+      final chatQuery = databaseRef.child('chats');
+      final snapshot = await chatQuery.get();
+
+      if (snapshot.exists) {
+        for (final child in snapshot.children) {
+          final chatData = child.value as Map<dynamic, dynamic>;
+          final participants =
+              List<String>.from(chatData['participants'] ?? []);
+
+          // Check if participants contain both myUid and friendUid
+          if (participants.contains(myUid) &&
+              participants.contains(friendUid) &&
+              participants.length == 2) {
+            String chatId = child.key!;
+            print("Found chat ID: $chatId");
+            return chatId;
+          }
+        }
+
+        print("No chat found with the specified participants.");
+      } else {
+        return "No message";
+      }
+    } catch (e) {
+      print("Error fetching chat ID: $e");
+      return "No message";
+    }
+    return "No message";
+  }
+
   String formatTimestamp(DateTime timestamp) {
     return "${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')} ${timestamp.hour >= 12 ? 'PM' : 'AM'}";
   }
+
+  Future<void> getFriendsList(String userUid) async {
+    try {
+      userDbController.friendListObx.value = [];
+      // Step 1: Find the user by userUid
+      Query userQuery = _userRef.orderByChild('_id').equalTo(userUid);
+      DatabaseEvent userEvent = await userQuery.once();
+      DataSnapshot userSnapshot = userEvent.snapshot;
+
+      if (!userSnapshot.exists) {
+        print('User not found with userUid: $userUid');
+        return;
+      }
+
+      // Extract user data
+      Map<String, dynamic> userData =
+          Map<String, dynamic>.from(userSnapshot.value as Map);
+      String userKey = userData.keys.first;
+      Map<dynamic, dynamic> userObject = userData[userKey];
+
+      // Step 2: Get the list of friend IDs (assumed to be under 'friends')
+      Map<dynamic, dynamic>? friendIds =
+          userObject['friends'] as Map<dynamic, dynamic>?;
+
+      if (friendIds == null || friendIds.isEmpty) {
+        print('No friends found for this user.');
+        return;
+      }
+
+      // Step 3: Fetch friend details based on friend IDs
+
+      // Loop through the friend IDs and fetch the friend details
+      for (String friendId in friendIds.keys) {
+        Query friendQuery = _userRef.orderByChild('_id').equalTo(friendId);
+        DatabaseEvent friendEvent = await friendQuery.once();
+        DataSnapshot friendSnapshot = friendEvent.snapshot;
+
+        if (friendSnapshot.exists) {
+          // Extract friend data
+          Map<String, dynamic> friendData =
+              Map<String, dynamic>.from(friendSnapshot.value as Map);
+          String friendKey = friendData.keys.first;
+          Map<String, dynamic> friendObject =
+              Map<String, dynamic>.from(friendData[friendKey]);
+
+          // Create Friends instance from the friend data
+          Friend friend = Friend.fromMap(friendObject);
+          String chatId = await getChatId(friend.id);
+          print(chatId);
+          String lastMessage = await getLastMessage(chatId);
+          print(lastMessage);
+          friend.lastMessage = lastMessage;
+          userDbController.friendListObx.add(friend);
+
+          // this.friendList.add(friend);
+        }
+      }
+    } catch (error) {
+      print('Error fetching friends list: $error');
+    }
+  }
+
+  Future<String> getLastMessage(String chatId) async {
+    final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+    try {
+      DatabaseReference chatRef =
+          databaseRef.child("chats").child(chatId).child("messages");
+
+      DataSnapshot snapshot = await chatRef.get();
+
+      if (snapshot.exists) {
+        // Map messages to a list
+        List<Map<String, dynamic>> messages = snapshot.children.map((child) {
+          final data = child.value as Map<dynamic, dynamic>;
+          return {
+            "text": data['text'] ?? '',
+            "timestamp": data['timestamp'] ?? 0, // Default to 0 if missing
+          };
+        }).toList();
+
+        // Sort messages by timestamp
+        messages.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+
+        // Return the latest message
+        return messages.isNotEmpty ? messages.first['text'] : null;
+      } else {
+        print("No messages found for chat ID: $chatId");
+      }
+    } catch (e) {
+      print("Error fetching last message: $e");
+    }
+    return "No Message";
+  }
+
+  // Future<String> getLastMessage(String chatId) async {
+  //   print(chatId);
+  //   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
+  //   try {
+  //     DatabaseReference chatRef =
+  //         databaseRef.child("chats").child(chatId).child("messages");
+
+  //     Query latestMessageQuery =
+  //         chatRef.orderByChild("timestamp").limitToLast(1);
+
+  //     DataSnapshot snapshot = await latestMessageQuery.get();
+
+  //     if (snapshot.exists) {
+  //       // Extract the single message
+  //       final messageData =
+  //           snapshot.children.first.value as Map<dynamic, dynamic>;
+
+  //       final Messages message = Messages(
+  //         text: messageData['text'] ?? '',
+  //         senderId: messageData['senderId'] ?? '',
+  //         timeStamp: messageData['timestamp'] != null
+  //             ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
+  //             : DateTime.now(),
+  //       );
+
+  //       // Add the message to the list or use it directly
+  //       return message.text;
+  //     } else {
+  //       return 'No Message';
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     return 'No Message';
+  //   }
+  // }
 }

@@ -175,70 +175,6 @@ class ChatDbController extends GetxController {
     });
   }
 
-  // void watchDatabaseChanges(String path) {
-  //   int num = 1;
-  //   final databaseRef = FirebaseDatabase.instance.ref(path);
-  //   databaseRef.onChildChanged.listen((event) {
-  //     if (event.snapshot.exists) {
-  //       final String changedChildId = event.snapshot.key ?? "Unknown ID";
-  //       // print("Value changed for child ID: $changedChildId");
-  //       // ถ้า Child id = currentchat
-  //       if (changedChildId == currentChatId.value) {
-  //         print(num);
-  //         num += 1;
-  //         // print("In current Chat");
-  //         // getNewChatMessage(changedChildId);
-  //         // ให้รับข้อความใหม่เข้ามาใส่ใน List
-  //       }
-  //       // else {
-  //       //   print("Not in Current Chat");
-  //       // }
-
-  //       // print("CurrentChatId");
-  //       // print(currentChatId.value);
-  //     } else {
-  //       print("Child data not found at $path");
-  //     }
-  //   }, onError: (error) {
-  //     print("Error watching database: $error");
-  //   });
-  // }
-
-  // Future<void> getChatMessages(String chatId) async {
-  //   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-  //   try {
-  //     DatabaseReference chatRef =
-  //         databaseRef.child("chats").child(chatId).child("messages");
-  //     DataSnapshot snapshot = await chatRef.get();
-  //     if (snapshot.exists) {
-  //       // Parse the data into a list of CurrentChat objects
-  //       final List<Messages> messages = snapshot.children.map((child) {
-  //         final messageData = child.value as Map<dynamic, dynamic>;
-  //         return Messages(
-  //           text: messageData['text'] ?? '',
-  //           senderId: messageData['senderId'] ?? '',
-  //           timeStamp: messageData['timestamp'] != null
-  //               ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
-  //               : DateTime.now(),
-  //         );
-  //       }).toList();
-
-  //       messages.sort((b, a) => b.timeStamp.compareTo(a.timeStamp));
-
-  //       messageList.assignAll(messages);
-
-  //       // Messages คือที่ได้รับมา
-
-  //       print("Fetched ${messages.length} messages for chat ID: $chatId");
-  //       return;
-  //     } else {
-  //       print("No messages found for chat ID: $chatId");
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching messages: $e");
-  //   }
-  // }
-
   Future<void> getChatMessages(String chatId) async {
     final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
     try {
@@ -453,40 +389,4 @@ class ChatDbController extends GetxController {
     }
     return "No Message";
   }
-
-  // Future<String> getLastMessage(String chatId) async {
-  //   print(chatId);
-  //   final DatabaseReference databaseRef = FirebaseDatabase.instance.ref();
-  //   try {
-  //     DatabaseReference chatRef =
-  //         databaseRef.child("chats").child(chatId).child("messages");
-
-  //     Query latestMessageQuery =
-  //         chatRef.orderByChild("timestamp").limitToLast(1);
-
-  //     DataSnapshot snapshot = await latestMessageQuery.get();
-
-  //     if (snapshot.exists) {
-  //       // Extract the single message
-  //       final messageData =
-  //           snapshot.children.first.value as Map<dynamic, dynamic>;
-
-  //       final Messages message = Messages(
-  //         text: messageData['text'] ?? '',
-  //         senderId: messageData['senderId'] ?? '',
-  //         timeStamp: messageData['timestamp'] != null
-  //             ? DateTime.tryParse(messageData['timestamp']) ?? DateTime.now()
-  //             : DateTime.now(),
-  //       );
-
-  //       // Add the message to the list or use it directly
-  //       return message.text;
-  //     } else {
-  //       return 'No Message';
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //     return 'No Message';
-  //   }
-  // }
 }
